@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Star Wars Quiz</title>
+<meta name="description" content="Escolha entre o Lado da Luz e o Lado Sombrio e encare perguntas geradas com dados da SWAPI.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=News+Cycle:wght@400;700&family=Share+Tech+Mono&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-side="none">
+<canvas id="stars" aria-hidden="true"></canvas>
+
+<main id="screen-home" class="screen">
+  <div class="versus">
+    <header class="masthead">
+      <p class="eyebrow">Star Wars Quiz</p>
+      <h1>Escolha seu lado</h1>
+    </header>
+
+    <button class="side side-light" type="button" data-side="light">
+      <span class="side-art" id="art-light"></span>
+      <span class="side-copy">
+        <small>Luke Skywalker · X-wing</small>
+        <strong>Lado da Luz</strong>
+        <span class="side-goal">Destrua a Estrela da Morte acertando perguntas.</span>
+        <span class="side-cta">Acender sabre verde</span>
+      </span>
+    </button>
+
+    <button class="side side-dark" type="button" data-side="dark">
+      <span class="side-art" id="art-dark"></span>
+      <span class="side-copy">
+        <small>Darth Vader · TIE Advanced</small>
+        <strong>Lado Sombrio</strong>
+        <span class="side-goal">Cace a base rebelde acertando perguntas.</span>
+        <span class="side-cta">Acender sabre vermelho</span>
+      </span>
+    </button>
+
+    <div class="clash" aria-hidden="true">
+      <i class="blade blade-green"></i>
+      <i class="blade blade-red"></i>
+      <i class="spark"></i>
+    </div>
+  </div>
+
+  <section class="briefing" aria-label="Configurar partida">
+    <fieldset class="modes">
+      <legend>Setor da missão</legend>
+      <div id="modes" class="chip-row"></div>
+    </fieldset>
+    <dl class="readouts">
+      <div><dt>Recorde Luz</dt><dd id="best-light">0</dd></div>
+      <div><dt>Recorde Sombrio</dt><dd id="best-dark">0</dd></div>
+      <div><dt>Banco de dados</dt><dd id="data-status">Cópia local</dd></div>
+    </dl>
+  </section>
+</main>
+
+<main id="screen-quiz" class="screen" hidden>
+  <header class="hud">
+    <div class="hud-top">
+      <button id="quit" class="ghost" type="button">Abortar missão</button>
+      <dl class="hud-stats">
+        <div><dt>Pontos</dt><dd id="score">0</dd></div>
+        <div><dt>Sequência</dt><dd id="streak">x1</dd></div>
+      </dl>
+      <button id="sound" class="ghost" type="button" aria-pressed="true">Som ligado</button>
+    </div>
+    <div class="track" aria-hidden="true">
+      <span class="track-line"></span>
+      <span id="track-ship" class="track-ship"></span>
+      <span id="track-target" class="track-target"></span>
+    </div>
+    <div class="fuel" aria-hidden="true"><i id="fuel-bar"></i></div>
+  </header>
+
+  <div class="console">
+    <figure id="holo" class="holo" aria-hidden="true"></figure>
+    <div class="qa">
+      <p id="q-meta" class="eyebrow"></p>
+      <h2 id="q-prompt" tabindex="-1"></h2>
+      <div id="q-options" class="options"></div>
+      <div id="lifelines" class="lifelines">
+        <button id="use-force" class="ghost" type="button">Usar a Força: corta 2 alternativas</button>
+        <button id="use-jump" class="ghost" type="button">Saltar: troca a pergunta</button>
+        <span id="timer-readout" class="timer-readout"></span>
+      </div>
+      <div id="reveal" class="reveal" hidden>
+        <p id="reveal-verdict" class="verdict"></p>
+        <p id="reveal-fact"></p>
+        <div id="reveal-scale" class="scale"></div>
+        <button id="next" class="primary" type="button">Próxima pergunta</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<main id="screen-result" class="screen" hidden>
+  <div class="crawl-window" aria-hidden="true">
+    <div id="crawl" class="crawl"></div>
+  </div>
+  <section class="result">
+    <p id="result-side" class="eyebrow"></p>
+    <h2 id="result-rank"></h2>
+    <dl class="readouts">
+      <div><dt>Acertos</dt><dd id="result-correct"></dd></div>
+      <div><dt>Pontos</dt><dd id="result-score"></dd></div>
+      <div><dt>Recorde</dt><dd id="result-best"></dd></div>
+    </dl>
+    <p id="result-summary"></p>
+    <div class="result-actions">
+      <button id="again" class="primary" type="button">Jogar de novo</button>
+      <button id="switch-side" class="ghost" type="button">Trocar de lado</button>
+      <button id="copy" class="ghost" type="button">Copiar resultado</button>
+    </div>
+    <output id="copy-text" class="copy-text" hidden></output>
+    <div id="review-wrap" hidden>
+      <h3>Para rever no holocron</h3>
+      <ol id="review" class="review"></ol>
+    </div>
+  </section>
+</main>
+
+<footer class="credits">
+  Projeto de fã, sem vínculo com a Lucasfilm ou a Disney. Dados: <a href="https://swapi.info" target="_blank" rel="noopener">SWAPI</a>. Ilustrações originais.
+</footer>
+
+<script src="data/galaxy.js"></script>
+<script src="js/quiz.js"></script>
+<script src="js/art.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
