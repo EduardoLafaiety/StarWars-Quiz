@@ -66,6 +66,12 @@ Atualizar os links das fotos:
 node scripts/sync-images.mjs
 ```
 
+Redesenhar o ícone do site (sabres cruzados em pixel art):
+
+```bash
+node scripts/make-icon.cjs
+```
+
 Gerar 7.500 partidas e conferir as regras das perguntas:
 
 ```bash
