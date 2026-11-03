@@ -1,6 +1,6 @@
 // Interface do jogo: telas, cronometro, campo de estrelas, sons e dados ao vivo.
 (function () {
-  const { QuizEngine: Quiz, StarArt: Art, GALAXY_SNAPSHOT: SNAPSHOT } = window;
+  const { QuizEngine: Quiz, StarArt: Art, Pixel, GALAXY_SNAPSHOT: SNAPSHOT } = window;
   const $ = (id) => document.getElementById(id);
   const QUESTION_TIME = 20;
   const QUESTION_COUNT = 10;
@@ -9,8 +9,8 @@
   const SIDES = {
     light: {
       label: "Lado da Luz",
-      ship: Art.xwing,
-      flip: true,
+      ship: () => Pixel.sprite("xwing"),
+      flip: false,
       target: () => Art.photo("Death Star", { kind: "planet", src: Art.SCENES.deathStar, eager: true }),
       win: "A Estrela da Morte explodiu e a Rebelião comemora.",
       lose: "A Estrela da Morte segue inteira, e o treino recomeça em Dagobah.",
@@ -19,7 +19,7 @@
     },
     dark: {
       label: "Lado Sombrio",
-      ship: Art.tie,
+      ship: () => Pixel.sprite("tie"),
       flip: false,
       target: () => Art.photo("Yavin IV", { eager: true }),
       win: "A base rebelde foi encontrada e a frota imperial já está em órbita.",
@@ -70,7 +70,7 @@
 
   /* ---------- Som sintetizado, iniciado por um clique ---------- */
   let audio = null;
-  function tone({ from, to, duration, type = "sawtooth", gain = 0.05, delay = 0 }) {
+  function tone({ from, to, duration, type = "square", gain = 0.04, delay = 0 }) {
     if (!state.soundOn) return;
     try {
       audio = audio || new (window.AudioContext || window.webkitAudioContext)();
@@ -88,9 +88,9 @@
     } catch { /* navegador sem audio */ }
   }
   const sfx = {
-    ignite() { tone({ from: 70, to: 240, duration: 0.45 }); tone({ from: 110, to: 90, duration: 0.8, delay: 0.3, gain: 0.03 }); },
+    ignite() { tone({ from: 70, to: 240, duration: 0.45 }); tone({ from: 110, to: 90, duration: 0.8, delay: 0.3, gain: 0.02 }); },
     right() { tone({ from: 660, to: 880, duration: 0.12, type: "square", gain: 0.03 }); tone({ from: 880, to: 1320, duration: 0.16, type: "square", gain: 0.03, delay: 0.11 }); },
-    wrong() { tone({ from: 150, to: 60, duration: 0.4, gain: 0.06 }); },
+    wrong() { tone({ from: 150, to: 60, duration: 0.4, type: "triangle", gain: 0.12 }); },
     jump() { tone({ from: 90, to: 1400, duration: 0.7, gain: 0.03 }); },
   };
 
@@ -105,13 +105,14 @@
     let warp = 0;
     let warpTarget = 0;
 
+    // Desenha em um terco da resolucao e o CSS amplia sem suavizar: cada estrela vira um bloco.
+    const BLOCK = 3;
     function resize() {
-      const ratio = Math.min(window.devicePixelRatio || 1, 2);
       width = window.innerWidth;
       height = window.innerHeight;
-      canvas.width = width * ratio;
-      canvas.height = height * ratio;
-      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      canvas.width = Math.ceil(width / BLOCK);
+      canvas.height = Math.ceil(height / BLOCK);
+      ctx.setTransform(1 / BLOCK, 0, 0, 1 / BLOCK, 0, 0);
       const count = Math.round(Math.min(420, (width * height) / 3600));
       stars = Array.from({ length: count }, () => ({
         x: (Math.random() - 0.5) * width,
@@ -122,7 +123,7 @@
     }
 
     function paint(speed) {
-      ctx.fillStyle = warp > 0.05 ? "rgba(5,6,12,.34)" : "#05060c";
+      ctx.fillStyle = warp > 0.05 ? "rgba(0,0,0,.34)" : "#000000";
       ctx.fillRect(0, 0, width, height);
       const cx = width / 2;
       const cy = height / 2;
@@ -139,8 +140,14 @@
         }
         const scaleNext = 1 / (star.z + 0.08);
         const stretch = 1 + warp * 16;
-        ctx.strokeStyle = `rgba(225,235,255,${Math.min(1, 1.15 - star.z)})`;
-        ctx.lineWidth = warp > 0.05 ? 1.4 : Math.max(0.6, 1.5 - star.z);
+        if (warp <= 0.05) {
+          ctx.fillStyle = star.z < 0.35 ? "#fcfcfc" : star.z < 0.7 ? "#a4e4fc" : "#7c7c7c";
+          const size = star.z < 0.2 ? BLOCK * 2 : BLOCK;
+          ctx.fillRect(Math.round(x / BLOCK) * BLOCK, Math.round(y / BLOCK) * BLOCK, size, size);
+          return;
+        }
+        ctx.strokeStyle = star.z < 0.5 ? "#fcfcfc" : "#3cbcfc";
+        ctx.lineWidth = BLOCK;
         ctx.beginPath();
         ctx.moveTo(x, y);
         ctx.lineTo(cx + ((star.x * scaleNext) / 3 - (x - cx)) * stretch + (x - cx), cy + ((star.y * scaleNext) / 3 - (y - cy)) * stretch + (y - cy));
@@ -477,7 +484,7 @@
     $("holo").classList.add("flicker");
     const backdrop = $("backdrop");
     if (holo.src) {
-      backdrop.style.backgroundImage = `url("${holo.src}")`;
+      Pixel.paint(backdrop, holo.src, { block: 16, dither: 20 });
       backdrop.classList.add("on");
     } else {
       backdrop.classList.remove("on");
@@ -725,7 +732,7 @@
 
   function paintHero(scene) {
     const src = Art.SCENES[scene];
-    $("result-hero").style.backgroundImage = src ? `url("${src}")` : "";
+    Pixel.paint($("result-hero"), src, { block: 5, fit: scene === "deathStar" ? "contain" : "cover" });
     $("result-hero").dataset.scene = scene;
   }
 
@@ -826,7 +833,8 @@
   $("art-light").append(flyby);
   $("art-light").insertAdjacentHTML("beforeend", Art.sceneImg("light"));
   $("art-dark").insertAdjacentHTML("beforeend", Art.sceneImg("dark"));
-  if (Art.SCENES.hyperspace) $("hyper").style.setProperty("--hyper-src", `url("${Art.SCENES.hyperspace}")`);
+  Pixel.paint($("hyper"), Art.SCENES.hyperspace, { block: 6 });
+  Pixel.clash($("clash-canvas"));
 
   // Galeria em loop: a lista aparece duas vezes para a rolagem nao ter emenda.
   const REELS = {

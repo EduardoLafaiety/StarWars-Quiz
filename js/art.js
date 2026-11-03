@@ -1,4 +1,5 @@
-// Fotos reais vindas da Wookieepedia (data/images.js), com as ilustracoes em SVG como reserva se a imagem nao carregar.
+// Fotos reais vindas da Wookieepedia (data/images.js), transformadas em pixel art por js/pixel.js,
+// com as ilustracoes em SVG como reserva se a imagem nao carregar.
 (function (root) {
   const svg = (viewBox, body, extra = "") =>
     `<svg viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" ${extra}>${body}</svg>`;
@@ -247,14 +248,14 @@
     const src = forced || srcOf(name);
     const fallback = `<span class="photo-fallback">${fallbackFor(name, type)}</span>`;
     if (!src) return `<span class="photo is-fallback ${cls}" data-kind="${type}">${fallback}</span>`;
-    return `<span class="photo ${cls}" data-kind="${type}">${fallback}<img src="${src}" alt="" decoding="async" referrerpolicy="no-referrer"${eager ? "" : ' loading="lazy"'}></span>`;
+    return `<span class="photo ${cls}" data-kind="${type}">${fallback}<img src="${src}" alt="" decoding="async" crossorigin="anonymous" referrerpolicy="no-referrer"${eager ? "" : ' loading="lazy"'}></span>`;
   }
 
   // Miniatura so para nomes conhecidos (pessoas, naves, planetas, filmes); anos e fabricantes ficam sem.
   const thumb = (name) => (isKnown(name) ? photo(name, { cls: "thumb" }) : "");
 
   const sceneImg = (key, cls = "") => (SCENES[key]
-    ? `<img class="scene-photo ${cls}" src="${SCENES[key]}" alt="" decoding="async" referrerpolicy="no-referrer" data-drop-on-error>`
+    ? `<img class="scene-photo ${cls}" src="${SCENES[key]}" alt="" decoding="async" crossorigin="anonymous" referrerpolicy="no-referrer" data-block="5" data-drop-on-error>`
     : "");
 
   // Imagem da pergunta. Se a foto entregaria a resposta, mostra os candidatos lado a lado.
@@ -293,10 +294,14 @@
       const frame = img.closest(".photo");
       if (frame) frame.classList.add("is-fallback");
       if (frame || img.hasAttribute("data-drop-on-error")) img.remove();
+      if (frame && root.Pixel) frame.querySelectorAll(".photo-fallback > svg").forEach(root.Pixel.pixelSvg);
     }, true);
     document.addEventListener("load", (event) => {
       const img = event.target;
-      if (img instanceof HTMLImageElement) img.classList.add("is-loaded");
+      if (!(img instanceof HTMLImageElement)) return;
+      img.classList.add("is-loaded");
+      // Toda foto vira pixel art assim que carrega.
+      if (root.Pixel && (img.closest(".photo") || img.classList.contains("scene-photo"))) root.Pixel.attach(img);
     }, true);
   }
 
