@@ -20,7 +20,7 @@
   --edge: var(--ink);
   --px: 4px;
   --pixel: "Press Start 2P", "Courier New", monospace;
-  --body: "VT323", "Courier New", monospace;
+  --body: var(--pixel);
   color-scheme: dark;
 }
 body[data-side="light"] { --side: var(--saber-light); }
@@ -34,7 +34,9 @@ body {
   margin: 0;
   background: var(--void);
   color: var(--ink);
-  font: 400 1.375rem/1.15 var(--body);
+  font: 400 .5rem/2 var(--pixel);
+  text-transform: uppercase;
+  letter-spacing: .04em;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
@@ -54,7 +56,7 @@ body::after {
 canvas.px, .sprite, #stars, #clash-canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
 #stars { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 .screen { position: relative; z-index: 1; flex: 1; width: 100%; }
-button { font: inherit; color: inherit; cursor: var(--cursor, pointer); }
+button, input { font: inherit; color: inherit; text-transform: inherit; letter-spacing: inherit; cursor: var(--cursor, pointer); }
 button:focus-visible, a:focus-visible, h2:focus-visible, input:focus-visible { outline: 4px dashed var(--gold); outline-offset: 6px; }
 h2:focus { outline: none; }
 a { color: var(--gold); }
@@ -132,7 +134,7 @@ img.px-src, svg.px-src { display: none !important; }
 }
 h1 {
   margin: 0;
-  font: 400 clamp(1.75rem, 6.4vw, 5rem)/1.15 var(--pixel);
+  font: 400 clamp(1.5rem, 4.6vw, 3.5rem)/1.2 var(--pixel);
   text-transform: uppercase;
   text-wrap: balance;
   color: var(--gold);
@@ -145,7 +147,7 @@ h1 {
 .tagline {
   margin: 0;
   padding: 4px 8px;
-  font: 400 clamp(1.125rem, 2vw, 1.5rem)/1.1 var(--body);
+  font: 400 .5rem/1.8 var(--pixel);
   color: var(--holo);
   background: #000;
 }
@@ -235,14 +237,14 @@ canvas.scene-photo { transform-origin: 60% 40%; animation: blink-in .4s steps(3)
   background: currentColor;
   animation: blink 1s steps(1) infinite;
 }
-.side-copy strong { font: 400 clamp(1.25rem, 3.2vw, 2.5rem)/1.2 var(--pixel); text-transform: uppercase; }
+.side-copy strong { font: 400 clamp(1rem, 2.4vw, 1.75rem)/1.3 var(--pixel); text-transform: uppercase; }
 .side-light .side-copy strong { color: #fcfcfc; text-shadow: 4px 4px 0 #005800; }
 .side-dark .side-copy strong { color: #fcfcfc; text-shadow: 4px 4px 0 #a81000; }
-.side-goal { max-width: 32ch; font-size: 1.375rem; color: #fcfcfc; }
+.side-goal { max-width: 40ch; font-size: .5rem; line-height: 2; color: #fcfcfc; }
 .side-cta {
   margin-top: 8px;
   padding: 12px 16px;
-  font: 400 .625rem/1.4 var(--pixel);
+  font: 400 .5rem/1.4 var(--pixel);
   text-transform: uppercase;
   color: #000;
   text-shadow: none;
@@ -296,7 +298,7 @@ canvas.scene-photo { transform-origin: 60% 40%; animation: blink-in .4s steps(3)
 .chip[aria-pressed="true"]::before { content: "▶ "; }
 .readouts { display: flex; flex-wrap: wrap; gap: 12px 36px; margin: 0; }
 .readouts dt { margin-bottom: 6px; color: var(--muted); }
-.readouts dd { margin: 0; font: 400 .875rem/1.4 var(--pixel); color: var(--ink); }
+.readouts dd { margin: 0; font: 400 .5rem/1.4 var(--pixel); color: var(--ink); }
 
 /* Galeria do holocron */
 .holocron { position: relative; z-index: 1; display: grid; gap: 18px; padding-block: 40px 24px; overflow: hidden; }
@@ -309,7 +311,7 @@ canvas.scene-photo { transform-origin: 60% 40%; animation: blink-in .4s steps(3)
   width: min(1200px, calc(100% - 40px));
   margin: 0 auto;
 }
-.holocron-head .eyebrow { color: var(--holo); font-size: .75rem; }
+.holocron-head .eyebrow { color: var(--holo); font-size: .5rem; }
 .holocron-head .eyebrow::before { content: "■ "; animation: blink 1s steps(1) infinite; }
 .holocron-note { margin: 0; color: var(--muted); }
 .reel { overflow: hidden; padding-block: 8px; }
@@ -378,7 +380,7 @@ canvas.scene-photo { transform-origin: 60% 40%; animation: blink-in .4s steps(3)
 .hud-stats { display: flex; gap: 28px; margin: 0; }
 .hud-stats div { display: flex; align-items: baseline; gap: 10px; }
 .hud-stats dt { font: 400 .5rem var(--pixel); text-transform: uppercase; color: var(--muted); }
-.hud-stats dd { margin: 0; font: 400 1rem var(--pixel); color: var(--side); text-shadow: 3px 3px 0 #000; }
+.hud-stats dd { margin: 0; font: 400 .75rem var(--pixel); color: var(--side); text-shadow: 3px 3px 0 #000; }
 .ghost {
   padding: 9px 12px;
   background: #000;
@@ -544,7 +546,7 @@ canvas.scene-photo { transform-origin: 60% 40%; animation: blink-in .4s steps(3)
 .qa .eyebrow::before { content: "▶"; animation: blink 1s steps(1) infinite; }
 .qa h2 {
   margin: 0;
-  font: 400 clamp(1rem, 2.2vw, 1.625rem)/1.5 var(--pixel);
+  font: 400 clamp(.75rem, 1.6vw, 1rem)/1.8 var(--pixel);
   text-wrap: balance;
   text-shadow: 4px 4px 0 #000;
 }
@@ -581,7 +583,7 @@ canvas.scene-photo { transform-origin: 60% 40%; animation: blink-in .4s steps(3)
 .option .thumb[data-kind="ship"] img, .option .thumb[data-kind="planet"] img { padding: 4%; }
 .option .thumb[data-kind="poster"] { width: 44px; height: 62px; }
 .option .thumb .photo-fallback, .scale-name .thumb .photo-fallback, .review .thumb .photo-fallback { padding: 14%; }
-.option-label { min-width: 0; font-size: 1.5rem; line-height: 1; }
+.option-label { min-width: 0; font-size: .5rem; line-height: 1.8; }
 button.option:hover:not(:disabled) { background: var(--side); color: var(--side-ink); --edge: var(--ink); }
 button.option:hover:not(:disabled) kbd { background: #000; color: var(--side); --edge: var(--ink); }
 button.option:hover:not(:disabled)::before {
@@ -612,7 +614,7 @@ button.option:active:not(:disabled) { transform: translate(4px, 4px); --drop: 4p
 .option.is-wrong::after { background-image: var(--icon-cross); background-size: 18px auto; filter: invert(1); }
 @keyframes hit { 25% { transform: translateX(-8px); } 50% { transform: translateX(8px); } 75% { transform: translateX(-4px); } }
 .lifelines { display: flex; flex-wrap: wrap; gap: 14px 18px; align-items: center; padding: 4px; }
-.timer-readout { margin-left: auto; font: 400 1.125rem var(--pixel); color: var(--side); text-shadow: 3px 3px 0 #000; }
+.timer-readout { margin-left: auto; font: 400 .75rem var(--pixel); color: var(--side); text-shadow: 3px 3px 0 #000; }
 .reveal {
   display: grid;
   gap: 14px;
@@ -624,7 +626,7 @@ button.option:active:not(:disabled) { transform: translate(4px, 4px); --drop: 4p
   animation: drop-in .3s steps(3) both;
 }
 .reveal p { margin: 0; }
-.verdict { font: 400 1.25rem/1.3 var(--pixel); text-transform: uppercase; text-shadow: 4px 4px 0 #000; }
+.verdict { font: 400 .875rem/1.5 var(--pixel); text-transform: uppercase; text-shadow: 4px 4px 0 #000; }
 .verdict.good { color: var(--good); }
 .verdict.bad { color: var(--bad); }
 .primary {
@@ -673,7 +675,7 @@ body[data-side="duel"] { --side: var(--gold); }
   background: #000;
   border: 0;
   color: var(--ink);
-  font: 400 1.375rem var(--body);
+  font: 400 .5rem/1.5 var(--pixel);
   --edge: var(--dim);
 }
 .duel-names label:first-child input:focus { outline: none; --edge: var(--saber-light); }
@@ -683,8 +685,8 @@ body[data-side="duel"] { --side: var(--gold); }
 .life { --life: var(--saber-light); display: grid; gap: 8px; min-width: 0; }
 .life-dark { --life: var(--saber-dark); }
 .life header { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-.life header span { font: 400 .75rem/1.4 var(--pixel); text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.life header b { font: 400 .75rem var(--pixel); color: var(--life); }
+.life header span { font: 400 .5rem/1.6 var(--pixel); text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.life header b { font: 400 .5rem var(--pixel); color: var(--life); }
 .life-bar { height: 16px; padding: 2px; background: #000; box-shadow: 0 0 0 4px var(--ink); }
 .life-bar i {
   display: block;
@@ -715,7 +717,7 @@ body[data-side="duel"] { --side: var(--gold); }
   font: 400 .875rem/1 var(--pixel);
   --edge: var(--dim);
 }
-.pad-keys button small { font: 400 1rem var(--body); color: var(--muted); }
+.pad-keys button small { font: 400 .4375rem var(--pixel); color: var(--muted); }
 .pad-keys button:hover:not(:disabled) { background: var(--pad); color: #000; --edge: var(--ink); }
 .pad-keys button:hover:not(:disabled) small { color: #000; }
 .pad-keys button:disabled { opacity: .35; cursor: default; }
@@ -766,7 +768,7 @@ body[data-side="duel"] { --side: var(--gold); }
   width: min(92vw, 640px);
   margin-left: calc(min(92vw, 640px) / -2);
   color: var(--crawl);
-  font: 400 clamp(.75rem, 1.8vw, 1rem)/1.9 var(--pixel);
+  font: 400 clamp(.5rem, 1.4vw, .75rem)/2 var(--pixel);
   text-align: justify;
   text-shadow: 3px 3px 0 #000, -1px -1px 0 #000;
   transform-origin: 50% 100%;
@@ -793,7 +795,7 @@ body[data-side="duel"] { --side: var(--gold); }
 }
 .result h2 {
   margin: 0;
-  font: 400 clamp(1.5rem, 5vw, 3.25rem)/1.25 var(--pixel);
+  font: 400 clamp(1.25rem, 3.6vw, 2.25rem)/1.3 var(--pixel);
   text-transform: uppercase;
   color: var(--side);
   text-shadow: .08em .08em 0 #000, .12em .12em 0 var(--ink);
@@ -802,15 +804,15 @@ body[data-side="duel"] { --side: var(--gold); }
 .result p { margin: 0; }
 .result .readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; padding: 4px; }
 .result .readouts div { padding: 12px 14px; background: #000; --edge: var(--dim); }
-.result .readouts dd { font-size: 1.125rem; color: var(--side); }
+.result .readouts dd { font-size: .75rem; color: var(--side); }
 .result-actions { display: flex; flex-wrap: wrap; gap: 18px; padding: 4px; }
 .copy-text { display: block; margin: 4px; padding: 10px; background: #000; user-select: all; overflow-wrap: anywhere; --edge: var(--dim); }
-.result h3 { margin: 12px 0 8px; font: 400 .875rem/1.4 var(--pixel); text-transform: uppercase; color: var(--gold); }
+.result h3 { margin: 12px 0 8px; font: 400 .625rem/1.6 var(--pixel); text-transform: uppercase; color: var(--gold); }
 .review { margin: 0; padding: 4px; list-style: none; display: grid; gap: 18px; }
 .review li { display: flex; gap: 14px; align-items: center; padding: 10px 12px; background: #000; --edge: var(--dim); }
 .review .thumb { flex: none; width: 52px; height: 52px; }
 .review .thumb[data-kind="poster"] { width: 40px; height: 58px; }
-.review small { display: block; color: var(--muted); font-size: 1.25rem; }
+.review small { display: block; margin-top: 6px; color: var(--muted); font-size: .4375rem; line-height: 1.9; }
 
 .credits {
   position: relative;
@@ -818,7 +820,8 @@ body[data-side="duel"] { --side: var(--gold); }
   padding-block: 16px;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
-  font-size: 1.125rem;
+  font-size: .4375rem;
+  line-height: 2;
   color: var(--muted);
   text-align: center;
   background: #000;
@@ -833,7 +836,7 @@ body[data-side="duel"] { --side: var(--gold); }
 @media (max-width: 760px) {
   .versus { flex-direction: column; min-height: 0; }
   .masthead { position: static; padding-block: 24px 20px; }
-  h1 { font-size: clamp(1.5rem, 9vw, 2.75rem); }
+  h1 { font-size: clamp(1.25rem, 7vw, 2rem); }
   .side { flex: none; height: 440px; }
   .side + .side { border-top: var(--px) solid var(--ink); }
   .side:hover, .side:focus-visible { flex-grow: 0; }
@@ -867,7 +870,7 @@ body[data-side="duel"] { --side: var(--gold); }
   button.option:hover:not(:disabled)::before { display: none; }
   .hud-top #quit, .hud-top #sound { font-size: .4375rem; padding: 8px; }
   .hud-stats { gap: 14px; }
-  .hud-stats dd { font-size: .75rem; }
+  .hud-stats dd { font-size: .5rem; }
   .hud-stats dt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   .hud-top { flex-wrap: nowrap; }
   .timer-readout { margin-left: 0; }
@@ -877,7 +880,7 @@ body[data-side="duel"] { --side: var(--gold); }
   .pad { padding: 10px; }
   .pad-keys { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .pad-keys button small { display: none; }
-  .life header span, .life header b { font-size: .5625rem; }
+  .life header span, .life header b { font-size: .4375rem; }
   .duel-names input { width: calc(100% - 8px); }
   .duel-names label { flex: 1 1 140px; }
   /* No duelo, pergunta, alternativas e paineis precisam caber juntos na tela. */
@@ -885,10 +888,10 @@ body[data-side="duel"] { --side: var(--gold); }
   body[data-side="duel"] .holo { display: none; }
   body[data-side="duel"] .console { padding-block: 14px 22px; gap: 14px; }
   body[data-side="duel"] .qa { gap: 14px; }
-  body[data-side="duel"] .qa h2 { font-size: .875rem; }
+  body[data-side="duel"] .qa h2 { font-size: .625rem; }
   body[data-side="duel"] .options { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
   body[data-side="duel"] .option { min-height: 48px; padding: 8px; gap: 8px; flex-wrap: wrap; }
-  body[data-side="duel"] .option-label { font-size: 1.25rem; }
+  body[data-side="duel"] .option-label { font-size: .4375rem; }
   body[data-side="duel"] .option .thumb { width: 32px; height: 32px; }
   body[data-side="duel"] .pick-badge { margin-left: 0; }
   .duel-hud { padding-block: 10px 12px; gap: 18px; }

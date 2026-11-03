@@ -14,7 +14,7 @@ Quiz de fã em HTML, CSS e JavaScript puros, com visual de jogo de 8 bits. Escol
 
 **Modo Duelo**
 
-![Rodada do Duelo com Obi-Wan Kenobi em pixel art, as respostas de cada jogador e as barras de vida em blocos](docs/screenshots/06-duelo.png)
+![Rodada do Duelo com Boba Fett em pixel art, as respostas de cada jogador e as barras de vida em blocos](docs/screenshots/06-duelo.png)
 
 | No celular | Pergunta no celular |
 | --- | --- |
@@ -27,7 +27,7 @@ Quiz de fã em HTML, CSS e JavaScript puros, com visual de jogo de 8 bits. Escol
 - Barras em escala real depois das perguntas de comparação.
 - 20 segundos por pergunta, multiplicador por sequência de acertos e recorde salvo no navegador.
 - "Usar a Força" corta 2 alternativas, e "Saltar" troca a pergunta, uma vez cada por partida.
-- Visual de 8 bits: fontes pixeladas, caixas com cantos recortados, barras em blocos, animações em passos e sons em onda quadrada.
+- Visual de 8 bits: todo o texto em letras maiúsculas, pequenas e pixeladas (Press Start 2P), caixas com cantos recortados, barras em blocos, animações em passos e sons em onda quadrada.
 - Fotos reais de personagens, naves, planetas e pôsteres (Wookieepedia), convertidas na hora em pixel art com a paleta do NES e pontilhado, no holoprojetor, nas alternativas, na galeria do holocron e nas telas de abertura e resultado. Quando a foto entregaria a resposta, o holoprojetor mostra os candidatos lado a lado.
 - Salto para o hiperespaço, sons sintetizados e atalhos de 1 a 4 no teclado.
 - Patente final de Youngling a Mestre Jedi, ou de Acólito a Lorde Sombrio.
