@@ -2,15 +2,19 @@
 
 **Jogue agora: https://eduardolafaiety.github.io/StarWars-Quiz/**
 
-Quiz de fã em HTML, CSS e JavaScript puros. Escolha o Lado da Luz (Luke) ou o Lado Sombrio (Vader) e responda 10 perguntas geradas a partir da [SWAPI](https://swapi.info).
+Quiz de fã em HTML, CSS e JavaScript puros. Escolha o Lado da Luz ou o Lado Sombrio, jogue sozinho ou em duelo, e responda 10 perguntas geradas a partir da [SWAPI](https://swapi.info).
 
-![Tela inicial com os sabres de luz cruzados entre o Lado da Luz e o Lado Sombrio](docs/screenshots/01-escolha-seu-lado.png)
+![Tela inicial com a Millennium Falcon no Lado da Luz, Darth Vader no Lado Sombrio e os sabres cruzados no meio](docs/screenshots/01-escolha-seu-lado.png)
 
-## Primeira versão
+## Telas
 
 | Pergunta com comparação em escala real | Resultado com a patente da partida |
 | --- | --- |
-| ![Pergunta sobre a nave mais comprida, com barras em escala real](docs/screenshots/02-pergunta-escala-real.png) | ![Tela de resultado com o texto de abertura rolando e a patente Aprendiz Sith](docs/screenshots/03-resultado.png) |
+| ![Pergunta sobre a nave mais comprida, com as quatro naves no holoprojetor e barras em escala real](docs/screenshots/02-pergunta-escala-real.png) | ![Tela de resultado com o texto de abertura rolando sobre a Batalha de Yavin e a patente Mestre Jedi](docs/screenshots/03-resultado.png) |
+
+**Modo Duelo**
+
+![Rodada do Duelo com a foto de Boba Fett, as respostas de cada jogador e as barras de vida](docs/screenshots/06-duelo.png)
 
 | No celular | Pergunta no celular |
 | --- | --- |
