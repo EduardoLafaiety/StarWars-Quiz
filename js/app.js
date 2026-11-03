@@ -1,6 +1,6 @@
 // Interface do jogo: telas, cronometro, campo de estrelas, sons e dados ao vivo.
 (function () {
-  const { QuizEngine: Quiz, StarArt: Art, Pixel, GALAXY_SNAPSHOT: SNAPSHOT } = window;
+  const { QuizEngine: Quiz, StarArt: Art, Pixel, Wiki, GALAXY_SNAPSHOT: SNAPSHOT } = window;
   const $ = (id) => document.getElementById(id);
   const QUESTION_TIME = 20;
   const QUESTION_COUNT = 10;
@@ -837,16 +837,24 @@
   Pixel.clash($("clash-canvas"));
 
   // Galeria em loop: a lista aparece duas vezes para a rolagem nao ter emenda.
+  // Cada card abre a ficha do holocron; a copia fica fora do Tab e dos leitores de tela.
+  Wiki.init({
+    index: () => state.index,
+    sound: () => tone({ from: 520, to: 780, duration: 0.08, gain: 0.025 }),
+  });
   const REELS = {
     "reel-people": ["Luke Skywalker", "Darth Vader", "Leia Organa", "Han Solo", "Chewbacca", "Yoda", "Obi-Wan Kenobi", "Palpatine",
       "R2-D2", "C-3PO", "Boba Fett", "Padmé Amidala", "Darth Maul", "Lando Calrissian", "Mace Windu", "Jabba Desilijic Tiure"],
     "reel-ships": ["Millennium Falcon", "X-wing", "TIE Advanced x1", "Star Destroyer", "Slave 1", "Y-wing", "A-wing", "Naboo fighter",
       "Jedi starfighter", "Imperial shuttle", "Republic attack cruiser", "B-wing", "Jedi Interceptor", "arc-170"],
+    "reel-planets": ["Tatooine", "Alderaan", "Yavin IV", "Hoth", "Dagobah", "Bespin", "Endor", "Naboo", "Coruscant", "Kamino",
+      "Geonosis", "Utapau", "Mustafar", "Kashyyyk"],
   };
   Object.entries(REELS).forEach(([id, names]) => {
-    const cards = names.filter((name) => Art.srcOf(name))
-      .map((name) => `<figure class="card">${Art.photo(name)}<figcaption>${name}</figcaption></figure>`).join("");
-    $(id).innerHTML = `<div class="reel-track">${cards}${cards}</div>`;
+    const card = (name, copy) => `<button type="button" class="card" data-wiki="${Wiki.idFor(name)}"${copy ? ' tabindex="-1" aria-hidden="true"' : ""}>`
+      + `${Art.photo(name)}<span class="card-name">${name}</span></button>`;
+    const visible = names.filter((name) => Art.srcOf(name) && Wiki.idFor(name));
+    $(id).innerHTML = `<div class="reel-track">${visible.map((n) => card(n, false)).join("")}${visible.map((n) => card(n, true)).join("")}</div>`;
   });
 
   state.category = Quiz.CATEGORIES[store.get("category", "all")] ? store.get("category", "all") : "all";

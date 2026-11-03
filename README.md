@@ -29,6 +29,7 @@ Quiz de fã em HTML, CSS e JavaScript puros, com visual de jogo de 8 bits. Escol
 - "Usar a Força" corta 2 alternativas, e "Saltar" troca a pergunta, uma vez cada por partida.
 - Visual de 8 bits: todo o texto em letras maiúsculas, pequenas e pixeladas (Press Start 2P), caixas com cantos recortados, barras em blocos, animações em passos e sons em onda quadrada.
 - Fotos reais de personagens, naves, planetas e pôsteres (Wookieepedia), convertidas na hora em pixel art com a paleta do NES e pontilhado, no holoprojetor, nas alternativas, na galeria do holocron e nas telas de abertura e resultado. Quando a foto entregaria a resposta, o holoprojetor mostra os candidatos lado a lado.
+- Holocron: na tela inicial, cada card de personagem, nave ou planeta abre uma ficha no estilo wiki, com planeta natal, espécie, medidas, filmes, naves pilotadas, pilotos, nativos e mais. Tudo na ficha é link para outra ficha, e o botão Voltar refaz o caminho.
 - Salto para o hiperespaço, sons sintetizados e atalhos de 1 a 4 no teclado.
 - Patente final de Youngling a Mestre Jedi, ou de Acólito a Lorde Sombrio.
 - Modo Duelo para dois jogadores no mesmo aparelho: os dois respondem a mesma pergunta, cada um no seu painel (teclas 1 a 4 e 7 a 0, ou toque na tela). Cada acerto tira 25 de vida do outro, e quem acerta mais rápido tira 35. Vence quem zerar o adversário ou terminar as 15 rodadas com mais vida.
@@ -48,6 +49,7 @@ O projeto não tem etapa de build. O site é publicado a partir da branch `main`
 - `js/quiz.js`: gera as perguntas e calcula pontos e patentes. Não depende do navegador.
 - `js/app.js`: telas, cronômetro, sons, estrelas e carregamento da API.
 - `js/art.js`: fotos reais e as ilustrações em SVG que entram no lugar se uma foto não carregar.
+- `js/wiki.js`: monta as fichas do holocron a partir dos dados da SWAPI, com os termos mais comuns traduzidos.
 - `js/pixel.js`: transforma as fotos em pixel art (grade grossa, paleta do NES e pontilhado de Bayer) e desenha os sprites, o cursor e os sabres cruzados.
 - `data/galaxy.js`: cópia local da SWAPI, usada se a API ao vivo não responder.
 - `data/images.js`: links das fotos na Wookieepedia. As imagens não ficam no repositório, são carregadas direto de lá.
@@ -66,7 +68,7 @@ Atualizar os links das fotos:
 node scripts/sync-images.mjs
 ```
 
-Redesenhar o ícone do site (sabres cruzados em pixel art):
+Redesenhar o ícone do site (capacete do Darth Vader em pixel art):
 
 ```bash
 node scripts/make-icon.cjs

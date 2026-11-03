@@ -74,7 +74,8 @@ img.px-src, svg.px-src { display: none !important; }
 
 /* Caixa de 8 bits: a borda é feita de quatro sombras, então os cantos ficam recortados. */
 .briefing, .holo, .option, .reveal, .result, .chip, .ghost, .primary, .card, .pad, .pad-keys button,
-.duel-names input, .result .readouts div, .review li, .copy-text, .option kbd, .option .thumb, .side-cta {
+.duel-names input, .result .readouts div, .review li, .copy-text, .option kbd, .option .thumb, .side-cta,
+.wiki, .wiki-photo, .wiki-facts div, .wiki-link, .wiki-crawl {
   box-shadow:
     0 calc(-1 * var(--px)) 0 0 var(--edge),
     0 var(--px) 0 0 var(--edge),
@@ -317,13 +318,18 @@ canvas.scene-photo { transform-origin: 60% 40%; animation: blink-in .4s steps(3)
 .reel { overflow: hidden; padding-block: 8px; }
 .reel-track { display: flex; gap: 22px; width: max-content; padding: 6px 12px; animation: marquee 80s linear infinite; }
 .reel-reverse .reel-track { animation-direction: reverse; animation-duration: 95s; }
-.reel:hover .reel-track { animation-play-state: paused; }
+.reel:hover .reel-track, .reel:focus-within .reel-track { animation-play-state: paused; }
 @keyframes marquee { to { transform: translateX(calc(-50% - 11px)); } }
 .card {
   position: relative;
+  display: block;
   flex: none;
   width: 148px;
   margin: 0;
+  padding: 0;
+  border: 0;
+  text-align: left;
+  color: var(--ink);
   background: #000;
   --edge: var(--dim);
   transition: transform .15s steps(2);
@@ -331,7 +337,10 @@ canvas.scene-photo { transform-origin: 60% 40%; animation: blink-in .4s steps(3)
 .card .photo { aspect-ratio: 3 / 4; }
 #reel-ships .card { width: 216px; }
 #reel-ships .card .photo { aspect-ratio: 16 / 10; background: #000; }
-.card figcaption {
+#reel-planets .card { width: 132px; }
+#reel-planets .card .photo { aspect-ratio: 1; background: #000; }
+.card-name {
+  display: block;
   padding: 8px 8px 9px;
   font: 400 .5rem/1.5 var(--pixel);
   text-transform: uppercase;
@@ -342,8 +351,85 @@ canvas.scene-photo { transform-origin: 60% 40%; animation: blink-in .4s steps(3)
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.card:hover { --edge: var(--holo); transform: translateY(-8px); }
-.card:hover figcaption { color: var(--holo); }
+.card:hover, .card:focus-visible { --edge: var(--holo); transform: translateY(-8px); }
+.card:focus-visible { outline: none; }
+.card:hover .card-name, .card:focus-visible .card-name { color: #000; background: var(--holo); }
+.card:active { transform: translateY(-4px); }
+
+/* ---------- Holocron (wiki) ---------- */
+html:has(.wiki[open]) { overflow: hidden; }
+.wiki {
+  --side: var(--holo);
+  --edge: var(--holo);
+  --drop: 12px 12px 0 0 #0000a8;
+  width: min(940px, calc(100% - 40px));
+  max-height: calc(100svh - 56px);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  display: none;
+  flex-direction: column;
+  color: var(--ink);
+  background: #000;
+}
+.wiki[open] { display: flex; animation: drop-in .3s steps(3) both; }
+.wiki::backdrop { background: repeating-conic-gradient(rgba(0, 0, 0, .9) 0 25%, rgba(0, 0, 40, .75) 0 50%) 0 0 / 8px 8px; }
+.wiki-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 18px;
+  border-bottom: var(--px) solid var(--holo);
+  background: #000;
+}
+.wiki-bar .eyebrow { color: var(--holo); margin-right: auto; }
+.wiki-bar .eyebrow::before { content: "■ "; animation: blink 1s steps(1) infinite; }
+#wiki-back:not([hidden]) + .eyebrow { margin-left: 8px; }
+.wiki-body { overflow-y: auto; padding: 26px clamp(18px, 3vw, 30px) 30px; display: grid; gap: 30px; scrollbar-color: var(--holo) #000; }
+.wiki-head { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 28px; align-items: start; }
+.wiki-photo { margin: 4px; aspect-ratio: 3 / 4; --edge: var(--dim); background: #000; }
+.wiki-head[data-type="starships"] .wiki-photo, .wiki-head[data-type="planets"] .wiki-photo { aspect-ratio: 1; }
+.wiki-photo.photo[data-kind="ship"] img, .wiki-photo.photo[data-kind="planet"] img { padding: 8%; }
+.wiki-intro { display: grid; gap: 16px; min-width: 0; }
+.wiki-intro h2 { margin: 0; font: 400 clamp(1rem, 2.4vw, 1.5rem)/1.4 var(--pixel); color: var(--holo); text-shadow: 4px 4px 0 #0000a8; }
+.wiki-intro h2:focus { outline: none; }
+.wiki-summary { margin: 0; line-height: 2.1; }
+.wiki-facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 18px; margin: 0; padding: 4px; }
+.wiki-facts div { padding: 10px 12px; background: #000; --edge: var(--dim); min-width: 0; }
+.wiki-facts dt { color: var(--gold); font-size: .4375rem; }
+.wiki-facts dd { margin: 8px 0 0; line-height: 1.9; overflow-wrap: anywhere; }
+.wiki-facts dd .wiki-link { margin: 4px 0 0 4px; }
+.wiki-section { display: grid; gap: 14px; }
+.wiki-section h3 { margin: 0; font: 400 .625rem/1.6 var(--pixel); color: var(--gold); }
+.wiki-section h3 small { color: var(--dim); font-size: .5rem; }
+.wiki-links { display: flex; flex-wrap: wrap; gap: 16px; padding: 4px; }
+.wiki-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  padding: 6px 12px 6px 6px;
+  border: 0;
+  background: #000;
+  text-align: left;
+  --edge: var(--dim);
+}
+.wiki-link .thumb { flex: none; width: 32px; height: 32px; }
+.wiki-link .thumb[data-kind="poster"] { width: 26px; height: 36px; }
+.wiki-link span:last-child { min-width: 0; overflow-wrap: anywhere; }
+.wiki-link:hover, .wiki-link:focus-visible { background: var(--holo); color: #000; --edge: var(--ink); outline: none; }
+.wiki-link:active { transform: translate(2px, 2px); }
+.wiki-crawl {
+  margin: 4px;
+  padding: 16px 18px;
+  color: var(--crawl);
+  line-height: 2.2;
+  text-align: justify;
+  background: #000;
+  --edge: var(--gold-dark);
+}
 
 /* ---------- Fundo ambiente e salto ---------- */
 .backdrop {
@@ -854,6 +940,12 @@ body[data-side="duel"] { --side: var(--gold); }
   .fleet-tie-a, .fleet-tie-b { display: none; }
   .fleet-xwing { top: 7%; width: 19%; left: 8%; }
   .card { width: 120px; }
+  #reel-planets .card { width: 108px; }
+  .wiki { width: calc(100% - 24px); max-height: calc(100svh - 32px); }
+  .wiki-head { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .wiki-photo { width: 150px; }
+  .wiki-bar { padding: 12px; }
+  .wiki-bar .ghost { font-size: .4375rem; padding: 8px; }
   #reel-ships .card { width: 170px; }
   .console { grid-template-columns: minmax(0, 1fr); gap: 22px; padding-block: 18px 28px; }
   .holo { position: relative; top: 0; width: 100%; aspect-ratio: auto; height: clamp(150px, 28svh, 220px); }

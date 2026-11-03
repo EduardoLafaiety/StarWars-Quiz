@@ -79,10 +79,11 @@
   <section class="holocron" aria-label="Arquivos do holocron">
     <header class="holocron-head">
       <p class="eyebrow"><span>Arquivos do holocron</span></p>
-      <p class="holocron-note">Personagens, naves e mundos que podem cair na sua missão.</p>
+      <p class="holocron-note">Clique em um card para abrir a ficha completa.</p>
     </header>
-    <div id="reel-people" class="reel" aria-hidden="true"></div>
-    <div id="reel-ships" class="reel reel-reverse" aria-hidden="true"></div>
+    <div id="reel-people" class="reel" role="group" aria-label="Personagens"></div>
+    <div id="reel-ships" class="reel reel-reverse" role="group" aria-label="Naves"></div>
+    <div id="reel-planets" class="reel" role="group" aria-label="Planetas"></div>
   </section>
 </main>
 
@@ -178,6 +179,15 @@
   </section>
 </main>
 
+<dialog id="wiki" class="wiki" aria-labelledby="wiki-title">
+  <div class="wiki-bar">
+    <button id="wiki-back" class="ghost" type="button" hidden>◀ Voltar</button>
+    <p class="eyebrow">Holocron</p>
+    <button id="wiki-close" class="ghost" type="button">Fechar X</button>
+  </div>
+  <article id="wiki-body" class="wiki-body"></article>
+</dialog>
+
 <footer class="credits">
   Projeto de fã para uso pessoal, sem vínculo com a Lucasfilm ou a Disney. Dados: <a href="https://swapi.info" target="_blank" rel="noopener">SWAPI</a>. Imagens: <a href="https://starwars.fandom.com" target="_blank" rel="noopener">Wookieepedia</a> © Lucasfilm.
 </footer>
@@ -187,6 +197,7 @@
 <script src="js/quiz.js"></script>
 <script src="js/pixel.js"></script>
 <script src="js/art.js"></script>
+<script src="js/wiki.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
