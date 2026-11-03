@@ -1,4 +1,4 @@
-// Ilustracoes originais em SVG: nada de imagem externa, tudo desenhado aqui.
+// Fotos reais vindas da Wookieepedia (data/images.js), com as ilustracoes em SVG como reserva se a imagem nao carregar.
 (function (root) {
   const svg = (viewBox, body, extra = "") =>
     `<svg viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" ${extra}>${body}</svg>`;
@@ -202,7 +202,7 @@
       <path d="M50 8 A42 42 0 0 1 50 92 A62 62 0 0 0 50 8 Z" fill="#05060c" opacity=".42"/>`);
   };
 
-  const film = (episode) => `<div class="film-plate"><span>Episódio</span><b>${episode}</b></div>`;
+  const film = (episode) => `<span class="film-plate"><span>Episódio</span><b>${episode}</b></span>`;
 
   function forQuestion(art) {
     if (art.type === "ship") return ship(art.name);
@@ -211,5 +211,97 @@
     return film(art.episode);
   }
 
-  root.StarArt = { xwing, tie, destroyer, deathStar, vader, luke, lightScene, darkScene, ship, planet, forQuestion };
+  /* ---------- Fotos reais ---------- */
+  const IMAGES = root.GALAXY_IMAGES || {};
+  const SCENES = root.GALAXY_SCENES || {};
+  const SNAPSHOT = root.GALAXY_SNAPSHOT || {};
+  const FILM_PT = (root.QuizEngine && root.QuizEngine.FILM_PT) || {};
+
+  // Nome mostrado no quiz -> tipo de imagem e nome usado no mapa de fotos.
+  const KIND = {};
+  const ALIAS = {};
+  const CLIMATE = {};
+  (SNAPSHOT.people || []).forEach((p) => { KIND[p.name] = "person"; });
+  (SNAPSHOT.starships || []).forEach((s) => { KIND[s.name] = "ship"; });
+  (SNAPSHOT.planets || []).forEach((p) => { KIND[p.name] = "planet"; CLIMATE[p.name] = p.climate; });
+  (SNAPSHOT.films || []).forEach((f) => {
+    KIND[f.title] = "poster";
+    const label = FILM_PT[f.episode_id];
+    if (label) { KIND[label] = "poster"; ALIAS[label] = f.title; }
+  });
+
+  const srcOf = (name) => IMAGES[ALIAS[name] || name] || null;
+  const kindOf = (name) => KIND[name] || null;
+  const isKnown = (name) => Boolean(KIND[name]);
+
+  const fallbackFor = (name, kind) => {
+    if (kind === "ship") return ship(name);
+    if (kind === "planet") return planet(name, CLIMATE[name]);
+    if (kind === "poster") return film("★");
+    return bust();
+  };
+
+  // Moldura com a foto por cima do desenho: se a foto falhar, o desenho aparece.
+  function photo(name, { kind, cls = "", eager = false, src: forced } = {}) {
+    const type = kind || kindOf(name) || "person";
+    const src = forced || srcOf(name);
+    const fallback = `<span class="photo-fallback">${fallbackFor(name, type)}</span>`;
+    if (!src) return `<span class="photo is-fallback ${cls}" data-kind="${type}">${fallback}</span>`;
+    return `<span class="photo ${cls}" data-kind="${type}">${fallback}<img src="${src}" alt="" decoding="async" referrerpolicy="no-referrer"${eager ? "" : ' loading="lazy"'}></span>`;
+  }
+
+  // Miniatura so para nomes conhecidos (pessoas, naves, planetas, filmes); anos e fabricantes ficam sem.
+  const thumb = (name) => (isKnown(name) ? photo(name, { cls: "thumb" }) : "");
+
+  const sceneImg = (key, cls = "") => (SCENES[key]
+    ? `<img class="scene-photo ${cls}" src="${SCENES[key]}" alt="" decoding="async" referrerpolicy="no-referrer" data-drop-on-error>`
+    : "");
+
+  // Imagem da pergunta. Se a foto entregaria a resposta, mostra os candidatos lado a lado.
+  function holoFor(question) {
+    const art = question.art;
+    const answerText = question.options[question.answer];
+    const spoils = Boolean(question.scale) || (art.name && art.name === answerText);
+    if (spoils) {
+      const known = question.options.filter(isKnown);
+      if (known.length >= 2) {
+        return {
+          html: `<span class="mosaic" data-count="${question.options.length}">${question.options.map((o) => photo(o, { eager: true })).join("")}</span>`,
+          caption: "Compare os candidatos",
+          kind: "mosaic",
+        };
+      }
+      return { html: forQuestion(art), caption: "Arquivo confidencial", kind: "art" };
+    }
+    if (art.type === "film") {
+      if (!art.title) return { html: film(art.episode), caption: "Arquivo de filme", kind: "art" };
+      return { html: photo(art.title, { kind: "poster", eager: true }), caption: art.name || art.title, kind: "poster", src: srcOf(art.title) };
+    }
+    const kind = { person: "person", ship: "ship", planet: "planet" }[art.type];
+    return { html: photo(art.name, { kind, eager: true }), caption: art.name, kind, src: srcOf(art.name) };
+  }
+
+  // Lista de URLs de uma pergunta, para pre-carregar a proxima.
+  const sourcesFor = (question) => [question.art.name, question.art.title].concat(question.options)
+    .map((name) => name && srcOf(name)).filter(Boolean);
+
+  // Se a foto falhar (sem internet, link fora do ar), cai para o desenho ou some.
+  if (typeof document !== "undefined") {
+    document.addEventListener("error", (event) => {
+      const img = event.target;
+      if (!(img instanceof HTMLImageElement)) return;
+      const frame = img.closest(".photo");
+      if (frame) frame.classList.add("is-fallback");
+      if (frame || img.hasAttribute("data-drop-on-error")) img.remove();
+    }, true);
+    document.addEventListener("load", (event) => {
+      const img = event.target;
+      if (img instanceof HTMLImageElement) img.classList.add("is-loaded");
+    }, true);
+  }
+
+  root.StarArt = {
+    xwing, tie, destroyer, deathStar, vader, luke, lightScene, darkScene, ship, planet, forQuestion,
+    photo, thumb, sceneImg, holoFor, sourcesFor, srcOf, isKnown, SCENES,
+  };
 })(window);

@@ -34,6 +34,23 @@ for (const category of Object.keys(engine.CATEGORIES)) {
   }
 }
 
+// O duelo pede ate 15 perguntas por partida.
+for (const category of Object.keys(engine.CATEGORIES)) {
+  for (let game = 0; game < 300; game++) {
+    const questions = engine.generate(index, { category, count: engine.DUEL.maxRounds });
+    assert.strictEqual(questions.length, engine.DUEL.maxRounds, `${category}: duelo com ${questions.length} perguntas`);
+  }
+}
+
+const round = engine.resolveDuelRound;
+assert.deepStrictEqual(round(2, [{ choice: 2, time: 3 }, { choice: 2, time: 5 }]).damage, [25, 35], "os dois acertam, J1 mais rapido");
+assert.deepStrictEqual(round(2, [{ choice: 2, time: 4 }, { choice: 2, time: 4 }]).damage, [25, 25], "empate de tempo sem bonus");
+assert.deepStrictEqual(round(2, [{ choice: 1, time: 1 }, { choice: 2, time: 9 }]).damage, [25, 0], "so J2 acerta");
+assert.deepStrictEqual(round(2, [null, null]).damage, [0, 0], "ninguem respondeu");
+assert.deepStrictEqual(engine.duelOutcome([0, 40], 4), { over: true, winner: 1 });
+assert.deepStrictEqual(engine.duelOutcome([50, 50], 15), { over: true, winner: -1 });
+assert.deepStrictEqual(engine.duelOutcome([50, 75], 3), { over: false, winner: 1 });
+
 assert.deepStrictEqual(engine.pointsFor({ timeLeft: 20, timeTotal: 20, streak: 0 }), { points: 150, multiplier: 1 });
 assert.deepStrictEqual(engine.pointsFor({ timeLeft: 0, timeTotal: 20, streak: 2 }), { points: 150, multiplier: 1.5 });
 assert.strictEqual(engine.pointsFor({ timeLeft: 0, timeTotal: 20, streak: 40 }).multiplier, 3);

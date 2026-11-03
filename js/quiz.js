@@ -276,7 +276,7 @@
         const film = one(allFilms);
         const yearOf = (f) => f.release_date.slice(0, 4);
         return assemble(tools, {
-          key: `year:${film.url}`, cat: "films", art: { type: "film", episode: ROMAN[film.episode_id] }, source: idOf(film.url),
+          key: `year:${film.url}`, cat: "films", art: { type: "film", episode: ROMAN[film.episode_id], title: film.title, name: filmLabel(film) }, source: idOf(film.url),
           prompt: `Em que ano ${filmFull(film)} estreou?`,
           fact: `${filmLabel(film)} estreou em ${film.release_date.split("-").reverse().join("/")}.`,
         }, yearOf(film), take(allFilms.filter((f) => f !== film), 3).map(yearOf));
@@ -285,7 +285,7 @@
         const film = one(allFilms);
         const directors = Array.from(new Set(allFilms.map((f) => f.director)));
         return assemble(tools, {
-          key: `dir:${film.url}`, cat: "films", art: { type: "film", episode: ROMAN[film.episode_id] }, source: idOf(film.url),
+          key: `dir:${film.url}`, cat: "films", art: { type: "film", episode: ROMAN[film.episode_id], title: film.title, name: filmLabel(film) }, source: idOf(film.url),
           prompt: `Quem dirigiu ${filmFull(film)}?`,
           fact: `${filmLabel(film)} foi dirigido por ${film.director}.`,
         }, film.director, directors.filter((d) => d !== film.director));
@@ -303,7 +303,7 @@
         const sample = take(allFilms, 4);
         const first = sample.reduce((a, b) => (b.release_date < a.release_date ? b : a));
         return assemble(tools, {
-          key: `first:${sample.map((f) => f.episode_id).sort().join("")}`, cat: "films", art: { type: "film", episode: ROMAN[first.episode_id] }, source: "films",
+          key: `first:${sample.map((f) => f.episode_id).sort().join("")}`, cat: "films", art: { type: "film", episode: ROMAN[first.episode_id], title: first.title, name: filmLabel(first) }, source: "films",
           prompt: "Qual destes filmes chegou primeiro aos cinemas?",
           fact: `${filmLabel(first)} estreou em ${first.release_date.slice(0, 4)}. A numeração dos episódios não segue a ordem de estreia.`,
         }, filmLabel(first), sample.filter((f) => f !== first).map(filmLabel));
@@ -354,7 +354,29 @@
     return { tier, name: RANKS[side][tier] };
   }
 
-  const api = { CATEGORIES, ROMAN, RESOURCES, buildIndex, generate, pointsFor, rankFor, formatNumber };
+  // Duelo: cada acerto tira vida do outro jogador. Se os dois acertam, o mais rapido causa dano extra.
+  const DUEL = { hp: 100, hit: 25, speedBonus: 10, maxRounds: 15 };
+
+  function resolveDuelRound(answer, picks) {
+    const right = picks.map((pick) => Boolean(pick) && pick.choice === answer);
+    let fastest = -1;
+    if (right[0] && right[1] && picks[0].time !== picks[1].time) {
+      fastest = picks[0].time < picks[1].time ? 0 : 1;
+    }
+    // damage[i] e o dano que o jogador i recebe.
+    const dealt = right.map((isRight, i) => (isRight ? DUEL.hit + (i === fastest ? DUEL.speedBonus : 0) : 0));
+    return { right, fastest, damage: [dealt[1], dealt[0]] };
+  }
+
+  function duelOutcome(hp, roundsPlayed) {
+    const over = hp.some((value) => value <= 0) || roundsPlayed >= DUEL.maxRounds;
+    const winner = hp[0] === hp[1] ? -1 : hp[0] > hp[1] ? 0 : 1;
+    return { over, winner };
+  }
+
+  const api = {
+    CATEGORIES, ROMAN, FILM_PT, RESOURCES, DUEL, buildIndex, generate, pointsFor, rankFor, formatNumber, resolveDuelRound, duelOutcome,
+  };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.QuizEngine = api;
 })(typeof window !== "undefined" ? window : globalThis);

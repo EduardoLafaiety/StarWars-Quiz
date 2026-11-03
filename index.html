@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <title>Star Wars Quiz</title>
+<meta name="referrer" content="no-referrer">
 <meta name="description" content="Escolha entre o Lado da Luz e o Lado Sombrio e encare perguntas geradas com dados da SWAPI.">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://static.wikia.nocookie.net">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=News+Cycle:wght@400;700&family=Share+Tech+Mono&display=swap">
@@ -13,18 +16,21 @@
 </head>
 <body data-side="none">
 <canvas id="stars" aria-hidden="true"></canvas>
+<div id="backdrop" class="backdrop" aria-hidden="true"></div>
+<div id="hyper" class="hyper" aria-hidden="true"></div>
 
 <main id="screen-home" class="screen">
   <div class="versus">
     <header class="masthead">
-      <p class="eyebrow">Star Wars Quiz</p>
+      <p class="eyebrow"><span>Star Wars Quiz</span></p>
       <h1>Escolha seu lado</h1>
+      <p class="tagline">Há muito tempo, numa galáxia muito, muito distante...</p>
     </header>
 
     <button class="side side-light" type="button" data-side="light">
       <span class="side-art" id="art-light"></span>
       <span class="side-copy">
-        <small>Luke Skywalker · X-wing</small>
+        <small>Millennium Falcon · X-wing</small>
         <strong>Lado da Luz</strong>
         <span class="side-goal">Destrua a Estrela da Morte acertando perguntas.</span>
         <span class="side-cta">Acender sabre verde</span>
@@ -50,6 +56,16 @@
 
   <section class="briefing" aria-label="Configurar partida">
     <fieldset class="modes">
+      <legend>Modo de jogo</legend>
+      <div id="play-modes" class="chip-row"></div>
+    </fieldset>
+    <div id="duel-names" class="duel-names" hidden>
+      <label for="name-light"><span>Jogador da Luz · teclas 1 a 4</span>
+        <input id="name-light" type="text" maxlength="16" placeholder="Jogador 1" autocomplete="off"></label>
+      <label for="name-dark"><span>Jogador Sombrio · teclas 7 a 0</span>
+        <input id="name-dark" type="text" maxlength="16" placeholder="Jogador 2" autocomplete="off"></label>
+    </div>
+    <fieldset class="modes">
       <legend>Setor da missão</legend>
       <div id="modes" class="chip-row"></div>
     </fieldset>
@@ -58,6 +74,15 @@
       <div><dt>Recorde Sombrio</dt><dd id="best-dark">0</dd></div>
       <div><dt>Banco de dados</dt><dd id="data-status">Cópia local</dd></div>
     </dl>
+  </section>
+
+  <section class="holocron" aria-label="Arquivos do holocron">
+    <header class="holocron-head">
+      <p class="eyebrow"><span>Arquivos do holocron</span></p>
+      <p class="holocron-note">Personagens, naves e mundos que podem cair na sua missão.</p>
+    </header>
+    <div id="reel-people" class="reel" aria-hidden="true"></div>
+    <div id="reel-ships" class="reel reel-reverse" aria-hidden="true"></div>
   </section>
 </main>
 
@@ -71,7 +96,17 @@
       </dl>
       <button id="sound" class="ghost" type="button" aria-pressed="true">Som ligado</button>
     </div>
-    <div class="track" aria-hidden="true">
+    <div id="duel-hud" class="duel-hud" hidden>
+      <div class="life life-light">
+        <header><span id="hud-name-0"></span><b id="hp-0">100</b></header>
+        <div class="life-bar"><i id="hp-bar-0"></i></div>
+      </div>
+      <div class="life life-dark">
+        <header><b id="hp-1">100</b><span id="hud-name-1"></span></header>
+        <div class="life-bar"><i id="hp-bar-1"></i></div>
+      </div>
+    </div>
+    <div id="track" class="track" aria-hidden="true">
       <span class="track-line"></span>
       <span id="track-ship" class="track-ship"></span>
       <span id="track-target" class="track-target"></span>
@@ -80,11 +115,27 @@
   </header>
 
   <div class="console">
-    <figure id="holo" class="holo" aria-hidden="true"></figure>
+    <figure id="holo" class="holo" aria-hidden="true">
+      <span class="holo-corners"></span>
+      <div id="holo-media" class="holo-media"></div>
+      <span class="holo-sweep"></span>
+      <figcaption id="holo-caption" class="holo-caption"></figcaption>
+    </figure>
     <div class="qa">
       <p id="q-meta" class="eyebrow"></p>
       <h2 id="q-prompt" tabindex="-1"></h2>
       <div id="q-options" class="options"></div>
+      <div id="duel-pads" class="duel-pads" hidden>
+        <div class="pad pad-light" data-player="0">
+          <header><span id="pad-name-0"></span><span id="pad-status-0" class="pad-status"></span></header>
+          <div class="pad-keys"></div>
+        </div>
+        <div class="pad pad-dark" data-player="1">
+          <header><span id="pad-name-1"></span><span id="pad-status-1" class="pad-status"></span></header>
+          <div class="pad-keys"></div>
+        </div>
+        <span id="duel-timer" class="timer-readout"></span>
+      </div>
       <div id="lifelines" class="lifelines">
         <button id="use-force" class="ghost" type="button">Usar a Força: corta 2 alternativas</button>
         <button id="use-jump" class="ghost" type="button">Saltar: troca a pergunta</button>
@@ -102,15 +153,16 @@
 
 <main id="screen-result" class="screen" hidden>
   <div class="crawl-window" aria-hidden="true">
+    <div id="result-hero" class="result-hero"></div>
     <div id="crawl" class="crawl"></div>
   </div>
   <section class="result">
     <p id="result-side" class="eyebrow"></p>
     <h2 id="result-rank"></h2>
     <dl class="readouts">
-      <div><dt>Acertos</dt><dd id="result-correct"></dd></div>
-      <div><dt>Pontos</dt><dd id="result-score"></dd></div>
-      <div><dt>Recorde</dt><dd id="result-best"></dd></div>
+      <div><dt id="result-label-1">Acertos</dt><dd id="result-correct"></dd></div>
+      <div><dt id="result-label-2">Pontos</dt><dd id="result-score"></dd></div>
+      <div><dt id="result-label-3">Recorde</dt><dd id="result-best"></dd></div>
     </dl>
     <p id="result-summary"></p>
     <div class="result-actions">
@@ -127,10 +179,11 @@
 </main>
 
 <footer class="credits">
-  Projeto de fã, sem vínculo com a Lucasfilm ou a Disney. Dados: <a href="https://swapi.info" target="_blank" rel="noopener">SWAPI</a>. Ilustrações originais.
+  Projeto de fã para uso pessoal, sem vínculo com a Lucasfilm ou a Disney. Dados: <a href="https://swapi.info" target="_blank" rel="noopener">SWAPI</a>. Imagens: <a href="https://starwars.fandom.com" target="_blank" rel="noopener">Wookieepedia</a> © Lucasfilm.
 </footer>
 
 <script src="data/galaxy.js"></script>
+<script src="data/images.js"></script>
 <script src="js/quiz.js"></script>
 <script src="js/art.js"></script>
 <script src="js/app.js"></script>

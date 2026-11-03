@@ -11,24 +11,35 @@
       label: "Lado da Luz",
       ship: Art.xwing,
       flip: true,
-      target: Art.deathStar,
+      target: () => Art.photo("Death Star", { kind: "planet", src: Art.SCENES.deathStar, eager: true }),
       win: "A Estrela da Morte explodiu e a Rebelião comemora.",
       lose: "A Estrela da Morte segue inteira, e o treino recomeça em Dagobah.",
       crawlLine: "O esquadrão rebelde mergulha na trincheira.",
+      scenes: { win: "lightWin", lose: "deathStar" },
     },
     dark: {
       label: "Lado Sombrio",
       ship: Art.tie,
       flip: false,
-      target: Art.planet.bind(null, "Yavin IV", "temperate"),
+      target: () => Art.photo("Yavin IV", { eager: true }),
       win: "A base rebelde foi encontrada e a frota imperial já está em órbita.",
       lose: "A base rebelde escapou, e o Imperador não gostou de saber.",
       crawlLine: "A frota imperial varre a Orla Exterior.",
+      scenes: { win: "darkWin", lose: "falcon" },
     },
   };
 
+  const PLAY_MODES = { solo: "Solo", duel: "Duelo · 2 jogadores" };
+  const DUEL_KEYS = [["1", "2", "3", "4"], ["7", "8", "9", "0"]];
+  const LETTERS = ["A", "B", "C", "D"];
+
   const state = {
     index: Quiz.buildIndex(SNAPSHOT),
+    mode: "solo",
+    names: ["", ""],
+    hp: [Quiz.DUEL.hp, Quiz.DUEL.hp],
+    picks: [null, null],
+    duelCorrect: [0, 0],
     side: null,
     category: "all",
     questions: [],
@@ -153,6 +164,12 @@
         if (calm) return Promise.resolve();
         sfx.jump();
         warpTarget = 1;
+        // A foto do tunel do hiperespaco cresce por cima das estrelas esticadas.
+        const hyper = $("hyper");
+        hyper.classList.remove("on");
+        void hyper.offsetWidth;
+        hyper.style.setProperty("--jump", `${ms + 500}ms`);
+        hyper.classList.add("on");
         return new Promise((resolve) => {
           setTimeout(() => { warpTarget = 0; resolve(); }, ms);
         });
@@ -163,6 +180,8 @@
   /* ---------- Navegacao ---------- */
   function show(screen) {
     ["screen-home", "screen-quiz", "screen-result"].forEach((id) => { $(id).hidden = id !== screen; });
+    document.body.dataset.screen = screen.replace("screen-", "");
+    if (screen !== "screen-quiz") $("backdrop").classList.remove("on");
     window.scrollTo(0, 0);
   }
 
@@ -171,6 +190,37 @@
     $("best-light").textContent = store.get("best:light", "0");
     $("best-dark").textContent = store.get("best:dark", "0");
     show("screen-home");
+  }
+
+  const playerName = (i) => state.names[i].trim() || `Jogador ${i + 1}`;
+  const isDuel = () => state.mode === "duel";
+
+  function renderPlayModes() {
+    $("play-modes").innerHTML = "";
+    Object.entries(PLAY_MODES).forEach(([key, label]) => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "chip";
+      chip.textContent = label;
+      chip.setAttribute("aria-pressed", String(key === state.mode));
+      chip.addEventListener("click", () => {
+        state.mode = key;
+        store.set("mode", key);
+        renderPlayModes();
+      });
+      $("play-modes").append(chip);
+    });
+    $("duel-names").hidden = !isDuel();
+    // No duelo os dois lados comecam a mesma partida.
+    document.querySelectorAll(".side").forEach((button) => {
+      const goal = button.querySelector(".side-goal");
+      const cta = button.querySelector(".side-cta");
+      goal.dataset.solo = goal.dataset.solo || goal.textContent;
+      cta.dataset.solo = cta.dataset.solo || cta.textContent;
+      const player = button.dataset.side === "light" ? 0 : 1;
+      goal.textContent = isDuel() ? `${playerName(player)} joga com as teclas ${DUEL_KEYS[player][0]} a ${DUEL_KEYS[player][3]}.` : goal.dataset.solo;
+      cta.textContent = isDuel() ? "Começar duelo" : cta.dataset.solo;
+    });
   }
 
   function renderModes() {
@@ -191,7 +241,16 @@
   }
 
   /* ---------- Partida ---------- */
+  function setDuelLayout(on) {
+    $("duel-hud").hidden = !on;
+    $("duel-pads").hidden = !on;
+    $("track").hidden = on;
+    document.querySelector(".hud-stats").hidden = on;
+  }
+
   async function startGame(side) {
+    if (isDuel()) { startDuel(); return; }
+    setDuelLayout(false);
     state.side = side;
     Object.assign(state, {
       position: 0, score: 0, correct: 0, streak: 0, bestStreak: 0, forceLeft: 1, jumpLeft: 1, misses: [],
@@ -214,11 +273,248 @@
     renderQuestion();
   }
 
+  /* ---------- Duelo ---------- */
+  async function startDuel() {
+    setDuelLayout(true);
+    state.side = "duel";
+    Object.assign(state, {
+      position: 0, hp: [Quiz.DUEL.hp, Quiz.DUEL.hp], duelCorrect: [0, 0], picks: [null, null], misses: [],
+    });
+    state.questions = Quiz.generate(state.index, { category: state.category, count: Quiz.DUEL.maxRounds });
+    document.body.dataset.side = "duel";
+    sfx.ignite();
+    [0, 1].forEach((i) => {
+      $(`hud-name-${i}`).textContent = playerName(i);
+      $(`pad-name-${i}`).textContent = playerName(i);
+    });
+    paintLife();
+    await starfield.jump();
+    show("screen-quiz");
+    renderDuelQuestion();
+  }
+
+  function paintLife(hits = [false, false]) {
+    [0, 1].forEach((i) => {
+      $(`hp-${i}`).textContent = state.hp[i];
+      $(`hp-bar-${i}`).style.width = `${(state.hp[i] / Quiz.DUEL.hp) * 100}%`;
+      const life = $(`hp-${i}`).closest(".life");
+      life.classList.remove("hit");
+      if (hits[i]) { void life.offsetWidth; life.classList.add("hit"); }
+    });
+  }
+
+  function renderDuelQuestion() {
+    const question = state.questions[state.position];
+    state.answered = false;
+    state.picks = [null, null];
+    state.timeLeft = QUESTION_TIME;
+    paintHolo(question);
+    $("q-meta").textContent = `Rodada ${state.position + 1} · ${Quiz.CATEGORIES[question.cat]}`;
+    $("q-prompt").textContent = question.prompt;
+    $("reveal").hidden = true;
+    $("lifelines").hidden = true;
+    $("q-options").innerHTML = "";
+    // As alternativas so mostram o texto; quem responde sao os paineis de cada jogador.
+    question.options.forEach((text, i) => {
+      const row = document.createElement("div");
+      row.className = "option";
+      row.dataset.index = i;
+      optionBody(row, i, LETTERS[i], text);
+      $("q-options").append(row);
+    });
+    document.querySelectorAll(".pad").forEach((pad) => {
+      const player = Number(pad.dataset.player);
+      pad.classList.remove("locked");
+      $(`pad-status-${player}`).textContent = "Pensando";
+      $(`pad-status-${player}`).classList.remove("miss");
+      const keys = pad.querySelector(".pad-keys");
+      keys.innerHTML = "";
+      question.options.forEach((_, i) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.setAttribute("aria-label", `${playerName(player)} responde ${LETTERS[i]}`);
+        button.innerHTML = `${LETTERS[i]}<small>tecla ${DUEL_KEYS[player][i]}</small>`;
+        button.addEventListener("click", () => lockIn(player, i));
+        keys.append(button);
+      });
+    });
+    paintTimer();
+    clearInterval(state.timer);
+    state.timer = setInterval(tick, 100);
+    $("q-prompt").focus({ preventScroll: true });
+  }
+
+  function lockIn(player, choice) {
+    if (state.answered || state.picks[player]) return;
+    state.picks[player] = { choice, time: QUESTION_TIME - state.timeLeft };
+    const pad = document.querySelector(`.pad[data-player="${player}"]`);
+    pad.classList.add("locked");
+    pad.querySelectorAll("button").forEach((button) => { button.disabled = true; });
+    // A escolha fica escondida ate os dois travarem.
+    $(`pad-status-${player}`).textContent = "Resposta travada";
+    tone({ from: player ? 330 : 440, to: player ? 300 : 520, duration: 0.1, type: "square", gain: 0.025 });
+    if (state.picks[0] && state.picks[1]) resolveDuel();
+  }
+
+  function resolveDuel() {
+    if (state.answered) return;
+    state.answered = true;
+    clearInterval(state.timer);
+    const question = state.questions[state.position];
+    const result = Quiz.resolveDuelRound(question.answer, state.picks);
+    state.hp = state.hp.map((value, i) => Math.max(0, value - result.damage[i]));
+    result.right.forEach((isRight, i) => { if (isRight) state.duelCorrect[i]++; });
+    if (!result.right[0] && !result.right[1]) state.misses.push(question);
+
+    document.querySelectorAll(".option").forEach((row) => {
+      const i = Number(row.dataset.index);
+      row.classList.add(i === question.answer ? "is-right" : "dim");
+      state.picks.forEach((pick, player) => {
+        if (pick && pick.choice === i) {
+          const badge = document.createElement("span");
+          badge.className = `pick-badge p${player}`;
+          badge.textContent = playerName(player);
+          row.append(badge);
+          if (i !== question.answer) row.classList.replace("dim", "is-wrong");
+        }
+      });
+    });
+    document.querySelectorAll(".pad").forEach((pad) => {
+      const player = Number(pad.dataset.player);
+      pad.querySelectorAll("button").forEach((button) => { button.disabled = true; });
+      const pick = state.picks[player];
+      $(`pad-status-${player}`).textContent = !pick ? "Sem resposta" : result.right[player] ? "Acertou" : "Errou";
+      $(`pad-status-${player}`).classList.toggle("miss", !result.right[player]);
+    });
+
+    const [a, b] = [playerName(0), playerName(1)];
+    let verdict;
+    if (result.right[0] && result.right[1]) {
+      verdict = result.fastest === -1 ? "Os dois acertaram" : `Os dois acertaram, ${playerName(result.fastest)} foi mais rápido`;
+    } else if (result.right[0] || result.right[1]) {
+      verdict = `Golpe de ${result.right[0] ? a : b}`;
+    } else {
+      verdict = "Ninguém acertou";
+    }
+    const hits = result.damage.map((dmg, i) => (dmg ? `${playerName(i)} perde ${dmg} de vida` : "")).filter(Boolean);
+    $("reveal-verdict").textContent = verdict;
+    $("reveal-verdict").className = `verdict ${hits.length ? "good" : "bad"}`;
+    $("reveal-fact").textContent = `${hits.length ? `${hits.join(" e ")}. ` : ""}${question.fact}`;
+    renderScale(question);
+    paintLife(result.damage.map(Boolean));
+    if (hits.length) sfx.right(); else sfx.wrong();
+
+    const { over } = Quiz.duelOutcome(state.hp, state.position + 1);
+    $("next").textContent = over ? "Ver resultado do duelo" : "Próxima rodada";
+    $("reveal").hidden = false;
+    $("next").focus({ preventScroll: true });
+    $("reveal").scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+
+  function renderDuelResult() {
+    clearInterval(state.timer);
+    const rounds = state.position + 1;
+    const { winner } = Quiz.duelOutcome(state.hp, rounds);
+    document.body.dataset.side = winner === 0 ? "light" : winner === 1 ? "dark" : "duel";
+    const winnerSide = winner === 0 ? "Lado da Luz" : "Lado Sombrio";
+    paintHero(winner === 0 ? "lightWin" : winner === 1 ? "darkWin" : "hyperspace");
+    $("result-side").textContent = `Duelo · ${rounds} ${rounds === 1 ? "rodada" : "rodadas"}`;
+    $("result-rank").textContent = winner === -1 ? "Empate" : `Vitória de ${playerName(winner)}`;
+    $("result-label-1").textContent = `Acertos de ${playerName(0)}`;
+    $("result-correct").textContent = `${state.duelCorrect[0]}/${rounds}`;
+    $("result-label-2").textContent = `Acertos de ${playerName(1)}`;
+    $("result-score").textContent = `${state.duelCorrect[1]}/${rounds}`;
+    $("result-label-3").textContent = "Vida restante";
+    $("result-best").textContent = `${state.hp[0]} × ${state.hp[1]}`;
+    const loser = winner === 0 ? 1 : 0;
+    $("result-summary").textContent = winner === -1
+      ? "Os sabres se cruzaram até o fim e ninguém cedeu."
+      : state.hp[loser] === 0
+        ? `${playerName(winner)} derrubou ${playerName(loser)} e o ${winnerSide} vence o duelo.`
+        : `Depois de ${rounds} rodadas, ${playerName(winner)} terminou com mais vida e o ${winnerSide} vence.`;
+    $("copy-text").hidden = true;
+    $("switch-side").textContent = "Voltar ao início";
+
+    const crawl = $("crawl");
+    crawl.innerHTML = "";
+    [
+      { head: `Episódio ${Quiz.ROMAN[Math.min(10, Math.max(1, rounds))]}` },
+      { head: winner === -1 ? "O duelo sem vencedor" : `O triunfo de ${playerName(winner)}` },
+      { text: `${playerName(0)}, do Lado da Luz, e ${playerName(1)}, do Lado Sombrio, se enfrentaram em ${rounds} rodadas de perguntas sobre a galáxia.` },
+      { text: $("result-summary").textContent },
+      { text: "Mas toda rivalidade pede revanche, e os sabres já estão acesos de novo..." },
+    ].forEach((line) => {
+      const p = document.createElement("p");
+      p.textContent = line.head || line.text;
+      if (line.head) p.className = "crawl-head";
+      crawl.append(p);
+    });
+
+    $("review").innerHTML = "";
+    state.misses.forEach((question) => {
+      const item = document.createElement("li");
+      const answerText = document.createElement("small");
+      answerText.textContent = `Resposta: ${question.options[question.answer]}. ${question.fact}`;
+      const body = document.createElement("div");
+      body.textContent = question.prompt;
+      body.append(answerText);
+      item.innerHTML = Art.thumb(question.options[question.answer]) || Art.thumb(question.art.name || "");
+      item.append(body);
+      $("review").append(item);
+    });
+    $("review-wrap").hidden = state.misses.length === 0;
+    show("screen-result");
+  }
+
+  // Foto da pergunta no holoprojetor, a mesma foto desfocada ao fundo, e a proxima ja pre-carregada.
+  function paintHolo(question) {
+    const holo = Art.holoFor(question);
+    $("holo-media").innerHTML = holo.html;
+    $("holo-caption").textContent = holo.caption;
+    $("holo").dataset.kind = holo.kind;
+    $("holo").classList.remove("flicker");
+    void $("holo").offsetWidth;
+    $("holo").classList.add("flicker");
+    const backdrop = $("backdrop");
+    if (holo.src) {
+      backdrop.style.backgroundImage = `url("${holo.src}")`;
+      backdrop.classList.add("on");
+    } else {
+      backdrop.classList.remove("on");
+    }
+    const upcoming = state.questions[state.position + 1];
+    if (upcoming) {
+      Art.sourcesFor(upcoming).forEach((src) => {
+        const img = new Image();
+        img.referrerPolicy = "no-referrer";
+        img.src = src;
+      });
+    }
+  }
+
+  // Alternativa com miniatura quando o texto e um personagem, nave, planeta ou filme.
+  function optionBody(element, i, keyText, text) {
+    const key = document.createElement("kbd");
+    key.textContent = keyText;
+    const label = document.createElement("span");
+    label.className = "option-label";
+    label.textContent = text;
+    element.append(key);
+    const thumb = Art.thumb(text);
+    if (thumb) {
+      element.insertAdjacentHTML("beforeend", thumb);
+      element.classList.add("has-thumb");
+    }
+    element.append(label);
+    element.style.setProperty("--i", i);
+  }
+
   function renderQuestion() {
+    if (isDuel()) { renderDuelQuestion(); return; }
     const question = state.questions[state.position];
     state.answered = false;
     state.timeLeft = QUESTION_TIME;
-    $("holo").innerHTML = Art.forQuestion(question.art);
+    paintHolo(question);
     $("q-meta").textContent = `Pergunta ${state.position + 1} de ${state.questions.length} · ${Quiz.CATEGORIES[question.cat]}`;
     $("q-prompt").textContent = question.prompt;
     $("track-ship").style.left = `${(state.position / state.questions.length) * 100}%`;
@@ -230,11 +526,7 @@
       button.type = "button";
       button.className = "option";
       button.dataset.index = i;
-      const key = document.createElement("kbd");
-      key.textContent = i + 1;
-      const label = document.createElement("span");
-      label.textContent = text;
-      button.append(key, label);
+      optionBody(button, i, i + 1, text);
       button.addEventListener("click", () => answer(i));
       $("q-options").append(button);
     });
@@ -249,12 +541,15 @@
   function tick() {
     state.timeLeft = Math.max(0, state.timeLeft - 0.1);
     paintTimer();
-    if (state.timeLeft === 0) answer(-1);
+    if (state.timeLeft === 0) {
+      if (isDuel()) resolveDuel(); else answer(-1);
+    }
   }
 
   function paintTimer() {
     $("fuel-bar").style.transform = `scaleX(${state.timeLeft / QUESTION_TIME})`;
     $("timer-readout").textContent = `${Math.ceil(state.timeLeft)}s`;
+    $("duel-timer").textContent = `${Math.ceil(state.timeLeft)}s`;
   }
 
   function answer(choice) {
@@ -315,14 +610,16 @@
       wrap.className = `scale-row${row.label === correctLabel ? " top" : ""}`;
       const head = document.createElement("header");
       const name = document.createElement("span");
-      name.textContent = row.label;
+      name.className = "scale-name";
+      name.insertAdjacentHTML("beforeend", Art.thumb(row.label));
+      name.append(row.label);
       const value = document.createElement("span");
       value.textContent = row.unit === "classe" ? `classe ${Quiz.formatNumber(row.value)}` : `${Quiz.formatNumber(row.value)} ${row.unit}`;
       head.append(name, value);
       const bar = document.createElement("div");
       bar.className = "scale-bar";
       const fill = document.createElement("i");
-      fill.style.width = `${(row.value / max) * 100}%`;
+      fill.style.setProperty("--w", `${(row.value / max) * 100}%`);
       bar.append(fill);
       wrap.append(head, bar);
       box.append(wrap);
@@ -330,6 +627,16 @@
   }
 
   async function nextQuestion() {
+    if (isDuel()) {
+      if (Quiz.duelOutcome(state.hp, state.position + 1).over) {
+        await starfield.jump(500);
+        renderDuelResult();
+        return;
+      }
+      state.position++;
+      renderDuelQuestion();
+      return;
+    }
     if (state.position === state.questions.length - 1) {
       await starfield.jump(500);
       renderResult();
@@ -371,8 +678,13 @@
     const best = Math.max(Number(store.get(`best:${side}`, "0")) || 0, state.score);
     store.set(`best:${side}`, String(best));
 
+    paintHero(config.scenes[won ? "win" : "lose"]);
     $("result-side").textContent = config.label;
     $("result-rank").textContent = rank.name;
+    $("result-label-1").textContent = "Acertos";
+    $("result-label-2").textContent = "Pontos";
+    $("result-label-3").textContent = "Recorde";
+    $("switch-side").textContent = "Trocar de lado";
     $("result-correct").textContent = `${state.correct}/${total}`;
     $("result-score").textContent = Quiz.formatNumber(state.score);
     $("result-best").textContent = Quiz.formatNumber(best);
@@ -400,17 +712,37 @@
       const item = document.createElement("li");
       const answerText = document.createElement("small");
       answerText.textContent = `Resposta: ${question.options[question.answer]}. ${question.fact}`;
-      item.textContent = question.prompt;
-      item.append(answerText);
+      const body = document.createElement("div");
+      body.textContent = question.prompt;
+      body.append(answerText);
+      item.innerHTML = Art.thumb(question.options[question.answer]) || Art.thumb(question.art.name || "");
+      item.append(body);
       $("review").append(item);
     });
     $("review-wrap").hidden = state.misses.length === 0;
     show("screen-result");
   }
 
+  function paintHero(scene) {
+    const src = Art.SCENES[scene];
+    $("result-hero").style.backgroundImage = src ? `url("${src}")` : "";
+    $("result-hero").dataset.scene = scene;
+  }
+
+  function duelSummary() {
+    const rounds = state.position + 1;
+    const { winner } = Quiz.duelOutcome(state.hp, rounds);
+    const score = `${playerName(0)} ${state.hp[0]} × ${state.hp[1]} ${playerName(1)}`;
+    return winner === -1
+      ? `Star Wars Quiz: duelo empatado em ${rounds} rodadas (${score}).`
+      : `Star Wars Quiz: ${playerName(winner)} venceu o duelo em ${rounds} rodadas (${score}).`;
+  }
+
   function copyResult() {
-    const rank = Quiz.rankFor(state.side, state.correct, state.questions.length);
-    const text = `Star Wars Quiz: virei ${rank.name} no ${SIDES[state.side].label}, com ${state.correct}/${state.questions.length} acertos e ${Quiz.formatNumber(state.score)} pontos.`;
+    const rank = isDuel() ? null : Quiz.rankFor(state.side, state.correct, state.questions.length);
+    const text = isDuel()
+      ? duelSummary()
+      : `Star Wars Quiz: virei ${rank.name} no ${SIDES[state.side].label}, com ${state.correct}/${state.questions.length} acertos e ${Quiz.formatNumber(state.score)} pontos.`;
     const button = $("copy");
     const fallback = () => {
       $("copy-text").textContent = text;
@@ -467,6 +799,14 @@
 
   document.addEventListener("keydown", (event) => {
     if ($("screen-quiz").hidden || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (isDuel()) {
+      if (state.answered || event.target.matches("input")) return;
+      [0, 1].forEach((player) => {
+        const choice = DUEL_KEYS[player].indexOf(event.key);
+        if (choice >= 0 && choice < state.questions[state.position].options.length) lockIn(player, choice);
+      });
+      return;
+    }
     if (!state.answered && /^[1-4]$/.test(event.key)) {
       const option = document.querySelector(`.option[data-index="${Number(event.key) - 1}"]`);
       if (option && !option.classList.contains("struck")) answer(Number(event.key) - 1);
@@ -484,10 +824,37 @@
   flyby.className = "fleet fleet-xwing";
   flyby.innerHTML = Art.xwing();
   $("art-light").append(flyby);
+  $("art-light").insertAdjacentHTML("beforeend", Art.sceneImg("light"));
+  $("art-dark").insertAdjacentHTML("beforeend", Art.sceneImg("dark"));
+  if (Art.SCENES.hyperspace) $("hyper").style.setProperty("--hyper-src", `url("${Art.SCENES.hyperspace}")`);
+
+  // Galeria em loop: a lista aparece duas vezes para a rolagem nao ter emenda.
+  const REELS = {
+    "reel-people": ["Luke Skywalker", "Darth Vader", "Leia Organa", "Han Solo", "Chewbacca", "Yoda", "Obi-Wan Kenobi", "Palpatine",
+      "R2-D2", "C-3PO", "Boba Fett", "Padmé Amidala", "Darth Maul", "Lando Calrissian", "Mace Windu", "Jabba Desilijic Tiure"],
+    "reel-ships": ["Millennium Falcon", "X-wing", "TIE Advanced x1", "Star Destroyer", "Slave 1", "Y-wing", "A-wing", "Naboo fighter",
+      "Jedi starfighter", "Imperial shuttle", "Republic attack cruiser", "B-wing", "Jedi Interceptor", "arc-170"],
+  };
+  Object.entries(REELS).forEach(([id, names]) => {
+    const cards = names.filter((name) => Art.srcOf(name))
+      .map((name) => `<figure class="card">${Art.photo(name)}<figcaption>${name}</figcaption></figure>`).join("");
+    $(id).innerHTML = `<div class="reel-track">${cards}${cards}</div>`;
+  });
 
   state.category = Quiz.CATEGORIES[store.get("category", "all")] ? store.get("category", "all") : "all";
   state.soundOn = store.get("sound", "on") === "on";
+  state.mode = PLAY_MODES[store.get("mode", "solo")] ? store.get("mode", "solo") : "solo";
+  state.names = [store.get("name:0", ""), store.get("name:1", "")];
+  ["name-light", "name-dark"].forEach((id, player) => {
+    $(id).value = state.names[player];
+    $(id).addEventListener("input", () => {
+      state.names[player] = $(id).value;
+      store.set(`name:${player}`, $(id).value);
+      renderPlayModes();
+    });
+  });
   paintSound();
+  renderPlayModes();
   renderModes();
   renderHome();
   $("data-status").textContent = `Cópia local (${SNAPSHOT.syncedAt.split("-").reverse().join("/")})`;
