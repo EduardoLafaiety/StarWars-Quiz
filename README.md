@@ -72,7 +72,7 @@ Atualizar os links das fotos:
 node scripts/sync-images.mjs
 ```
 
-Redesenhar o ícone do site (capacete do Darth Vader em pixel art):
+Redesenhar o ícone do site (Millennium Falcon em pixel art, sem fundo):
 
 ```bash
 node scripts/make-icon.cjs
