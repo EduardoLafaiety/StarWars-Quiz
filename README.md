@@ -16,6 +16,10 @@ Quiz de fã em HTML, CSS e JavaScript puros, com visual de jogo de 8 bits. Escol
 
 ![Rodada do Duelo com Boba Fett em pixel art, as respostas de cada jogador e as barras de vida em blocos](docs/screenshots/06-duelo.png)
 
+| Galeria do holocron | Ficha da wiki |
+| --- | --- |
+| ![Galeria do holocron com faixas de personagens, naves e planetas em pixel art](docs/screenshots/07-holocron-galeria.png) | ![Ficha do Darth Vader no holocron, com planeta natal, espécie, medidas, filmes e nave pilotada](docs/screenshots/08-holocron-ficha.png) |
+
 | No celular | Pergunta no celular |
 | --- | --- |
 | <img src="docs/screenshots/04-celular.png" alt="Tela inicial no celular" width="300"> | <img src="docs/screenshots/05-celular-pergunta.png" alt="Pergunta respondida no celular" width="300"> |
