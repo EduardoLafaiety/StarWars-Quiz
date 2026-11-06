@@ -1,87 +1,87 @@
 # Star Wars Quiz
 
-**Jogue agora: https://eduardolafaiety.github.io/StarWars-Quiz/**
+**Jogue Agora: https://eduardolafaiety.github.io/StarWars-Quiz/**
 
-Quiz de fã em HTML, CSS e JavaScript puros, com visual de jogo de 8 bits. Escolha o Lado da Luz ou o Lado Sombrio, jogue sozinho ou em duelo, e responda 10 perguntas geradas a partir da [SWAPI](https://swapi.info).
+Quiz De Fã Em HTML, CSS E JavaScript Puros, Com Visual De Jogo De 8 Bits. Escolha O Lado Da Luz Ou O Lado Sombrio, Jogue Sozinho Ou Em Duelo, E Responda 10 Perguntas Geradas A Partir Da [SWAPI](https://swapi.info).
 
-![Tela inicial em 8 bits com a Millennium Falcon e o Darth Vader em pixel art e os sabres cruzados no meio](docs/screenshots/01-escolha-seu-lado.png)
+![Tela Inicial Em 8 Bits Com A Millennium Falcon E O Darth Vader Em Pixel Art E Os Sabres Cruzados No Meio](docs/screenshots/01-escolha-seu-lado.png)
 
 ## Telas
 
-| Pergunta com comparação em escala real | Resultado com a patente da partida |
+| Pergunta Com Comparação Em Escala Real | Resultado Com A Patente Da Partida |
 | --- | --- |
-| ![Pergunta sobre a nave mais comprida, com as quatro naves em pixel art no holoprojetor e barras em blocos](docs/screenshots/02-pergunta-escala-real.png) | ![Tela de resultado com o texto de abertura rolando sobre a Batalha de Yavin em pixel art e a patente Mestre Jedi](docs/screenshots/03-resultado.png) |
+| ![Pergunta Sobre A Nave Mais Comprida, Com As Quatro Naves Em Pixel Art No Holoprojetor E Barras Em Blocos](docs/screenshots/02-pergunta-escala-real.png) | ![Tela De Resultado Com O Texto De Abertura Rolando Sobre A Batalha De Yavin Em Pixel Art E A Patente Mestre Jedi](docs/screenshots/03-resultado.png) |
 
 **Modo Duelo**
 
-![Rodada do Duelo com Boba Fett em pixel art, as respostas de cada jogador e as barras de vida em blocos](docs/screenshots/06-duelo.png)
+![Rodada Do Duelo Com Boba Fett Em Pixel Art, As Respostas De Cada Jogador E As Barras De Vida Em Blocos](docs/screenshots/06-duelo.png)
 
-| Galeria do holocron | Ficha da wiki |
+| Galeria Do Holocron | Ficha Da Wiki |
 | --- | --- |
-| ![Galeria do holocron com faixas de personagens, naves e planetas em pixel art](docs/screenshots/07-holocron-galeria.png) | ![Ficha do Darth Vader no holocron, com planeta natal, espécie, medidas, filmes e nave pilotada](docs/screenshots/08-holocron-ficha.png) |
+| ![Galeria Do Holocron Com Faixas De Personagens, Naves E Planetas Em Pixel Art](docs/screenshots/07-holocron-galeria.png) | ![Ficha Do Darth Vader No Holocron, Com Planeta Natal, Espécie, Medidas, Filmes E Nave Pilotada](docs/screenshots/08-holocron-ficha.png) |
 
-| No celular | Pergunta no celular |
+| No Celular | Pergunta No Celular |
 | --- | --- |
-| <img src="docs/screenshots/04-celular.png" alt="Tela inicial no celular" width="300"> | <img src="docs/screenshots/05-celular-pergunta.png" alt="Pergunta respondida no celular" width="300"> |
+| <img src="docs/screenshots/04-celular.png" alt="Tela Inicial No Celular" width="300"> | <img src="docs/screenshots/05-celular-pergunta.png" alt="Pergunta Respondida No Celular" width="300"> |
 
-## O que tem no jogo
+## O Que Tem No Jogo
 
-- Escolha de lado: a cor do sabre pinta a interface, e sua nave avança rumo ao alvo a cada pergunta.
-- 16 tipos de pergunta sobre personagens, naves, planetas e filmes, em 5 modos de jogo.
-- Barras em escala real depois das perguntas de comparação.
-- 20 segundos por pergunta, multiplicador por sequência de acertos e recorde salvo no navegador.
-- "Usar a Força" corta 2 alternativas, e "Saltar" troca a pergunta, uma vez cada por partida.
-- Visual de 8 bits: todo o texto em letras maiúsculas, pequenas e pixeladas (Press Start 2P), caixas com cantos recortados, barras em blocos, animações em passos e sons em onda quadrada.
-- Fotos reais de personagens, naves, planetas e pôsteres (Wookieepedia), convertidas na hora em pixel art com a paleta do NES e pontilhado, no holoprojetor, nas alternativas, na galeria do holocron e nas telas de abertura e resultado. Quando a foto entregaria a resposta, o holoprojetor mostra os candidatos lado a lado.
-- Holocron: na tela inicial, cada card de personagem, nave ou planeta abre uma ficha no estilo wiki, com planeta natal, espécie, medidas, filmes, naves pilotadas, pilotos, nativos e mais. Tudo na ficha é link para outra ficha, e o botão Voltar refaz o caminho.
-- Salto para o hiperespaço, sons sintetizados e atalhos de 1 a 4 no teclado.
-- Patente final de Youngling a Mestre Jedi, ou de Acólito a Lorde Sombrio.
-- Modo Duelo para dois jogadores no mesmo aparelho: os dois respondem a mesma pergunta, cada um no seu painel (teclas 1 a 4 e 7 a 0, ou toque na tela). Cada acerto tira 25 de vida do outro, e quem acerta mais rápido tira 35. Vence quem zerar o adversário ou terminar as 15 rodadas com mais vida.
+- Escolha De Lado: A Cor Do Sabre Pinta A Interface, E Sua Nave Avança Rumo Ao Alvo A Cada Pergunta.
+- 16 Tipos De Pergunta Sobre Personagens, Naves, Planetas E Filmes, Em 5 Modos De Jogo.
+- Barras Em Escala Real Depois Das Perguntas De Comparação.
+- 20 Segundos Por Pergunta, Multiplicador Por Sequência De Acertos E Recorde Salvo No Navegador.
+- "Usar A Força" Corta 2 Alternativas, E "Saltar" Troca A Pergunta, Uma Vez Cada Por Partida.
+- Visual De 8 Bits: Todo O Texto Em Letras Maiúsculas, Pequenas E Pixeladas (Press Start 2P), Caixas Com Cantos Recortados, Barras Em Blocos, Animações Em Passos E Sons Em Onda Quadrada.
+- Fotos Reais De Personagens, Naves, Planetas E Pôsteres (Wookieepedia), Convertidas Na Hora Em Pixel Art Com A Paleta Do NES E Pontilhado, No Holoprojetor, Nas Alternativas, Na Galeria Do Holocron E Nas Telas De Abertura E Resultado. Quando A Foto Entregaria A Resposta, O Holoprojetor Mostra Os Candidatos Lado A Lado.
+- Holocron: Na Tela Inicial, Cada Card De Personagem, Nave Ou Planeta Abre Uma Ficha No Estilo Wiki, Com Planeta Natal, Espécie, Medidas, Filmes, Naves Pilotadas, Pilotos, Nativos E Mais. Tudo Na Ficha É Link Para Outra Ficha, E O Botão Voltar Refaz O Caminho.
+- Salto Para O Hiperespaço, Sons Sintetizados E Atalhos De 1 A 4 No Teclado.
+- Patente Final De Youngling A Mestre Jedi, Ou De Acólito A Lorde Sombrio.
+- Modo Duelo Para Dois Jogadores No Mesmo Aparelho: Os Dois Respondem A Mesma Pergunta, Cada Um No Seu Painel (Teclas 1 A 4 E 7 A 0, Ou Toque Na Tela). Cada Acerto Tira 25 De Vida Do Outro, E Quem Acerta Mais Rápido Tira 35. Vence Quem Zerar O Adversário Ou Terminar As 15 Rodadas Com Mais Vida.
 
-## Rodar localmente
+## Rodar Localmente
 
 ```bash
 npx http-server . -p 4173
 ```
 
-## Publicar no GitHub Pages
+## Publicar No GitHub Pages
 
-O projeto não tem etapa de build. O site é publicado a partir da branch `main`, na pasta `/ (root)`, e cada push atualiza o site em alguns minutos.
+O Projeto Não Tem Etapa De Build. O Site É Publicado A Partir Da Branch `main`, Na Pasta `/ (root)`, E Cada Push Atualiza O Site Em Alguns Minutos.
 
-## Como funciona
+## Como Funciona
 
-- `js/quiz.js`: gera as perguntas e calcula pontos e patentes. Não depende do navegador.
-- `js/app.js`: telas, cronômetro, sons, estrelas e carregamento da API.
-- `js/art.js`: fotos reais e as ilustrações em SVG que entram no lugar se uma foto não carregar.
-- `js/wiki.js`: monta as fichas do holocron a partir dos dados da SWAPI, com os termos mais comuns traduzidos.
-- `js/pixel.js`: transforma as fotos em pixel art (grade grossa, paleta do NES e pontilhado de Bayer) e desenha os sprites, o cursor e os sabres cruzados.
-- `data/galaxy.js`: cópia local da SWAPI, usada se a API ao vivo não responder.
-- `data/images.js`: links das fotos na Wookieepedia. As imagens não ficam no repositório, são carregadas direto de lá.
+- `js/quiz.js`: Gera As Perguntas E Calcula Pontos E Patentes. Não Depende Do Navegador.
+- `js/app.js`: Telas, Cronômetro, Sons, Estrelas E Carregamento Da API.
+- `js/art.js`: Fotos Reais E As Ilustrações Em SVG Que Entram No Lugar Se Uma Foto Não Carregar.
+- `js/wiki.js`: Monta As Fichas Do Holocron A Partir Dos Dados Da SWAPI, Com Os Termos Mais Comuns Traduzidos.
+- `js/pixel.js`: Transforma As Fotos Em Pixel Art (Grade Grossa, Paleta Do NES E Pontilhado De Bayer) E Desenha Os Sprites, O Cursor E Os Sabres Cruzados.
+- `data/galaxy.js`: Cópia Local Da SWAPI, Usada Se A API Ao Vivo Não Responder.
+- `data/images.js`: Links Das Fotos Na Wookieepedia. As Imagens Não Ficam No Repositório, São Carregadas Direto De Lá.
 
 ## Scripts
 
-Atualizar a cópia local dos dados:
+Atualizar A Cópia Local Dos Dados:
 
 ```bash
 node scripts/sync-swapi.mjs
 ```
 
-Atualizar os links das fotos:
+Atualizar Os Links Das Fotos:
 
 ```bash
 node scripts/sync-images.mjs
 ```
 
-Redesenhar o ícone do site (Millennium Falcon em pixel art, sem fundo):
+Redesenhar O Ícone Do Site (Millennium Falcon Em Pixel Art, Sem Fundo):
 
 ```bash
 node scripts/make-icon.cjs
 ```
 
-Gerar 7.500 partidas e conferir as regras das perguntas:
+Gerar 7.500 Partidas E Conferir As Regras Das Perguntas:
 
 ```bash
 node scripts/check-quiz.cjs
 ```
 
-Projeto de fã, sem vínculo com a Lucasfilm ou a Disney.
+Projeto De Fã, Sem Vínculo Com A Lucasfilm Ou A Disney.
